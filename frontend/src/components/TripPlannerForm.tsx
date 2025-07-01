@@ -8,9 +8,10 @@ import {
   Select,
   MenuItem,
   CircularProgress,
-  SelectChangeEvent
+  SelectChangeEvent,
+  Typography
 } from '@mui/material';
-import { Send } from '@mui/icons-material';
+import { Send, FlightTakeoff } from '@mui/icons-material';
 import { TripRequest } from '../types/trip';
 
 interface TripPlannerFormProps {
@@ -54,6 +55,13 @@ const TripPlannerForm: React.FC<TripPlannerFormProps> = ({ onSubmit, loading }) 
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 1 }}>
+        <FlightTakeoff sx={{ color: 'primary.main' }} />
+        <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 600 }}>
+          Trip Details
+        </Typography>
+      </Box>
+
       <TextField
         fullWidth
         required
@@ -64,6 +72,16 @@ const TripPlannerForm: React.FC<TripPlannerFormProps> = ({ onSubmit, loading }) 
         placeholder="e.g., Tokyo, Japan"
         margin="normal"
         disabled={loading}
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            '&:hover fieldset': {
+              borderColor: 'primary.main',
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: 'primary.main',
+            },
+          },
+        }}
       />
 
       <TextField
@@ -76,6 +94,16 @@ const TripPlannerForm: React.FC<TripPlannerFormProps> = ({ onSubmit, loading }) 
         placeholder="e.g., 7 days, 2 weeks"
         margin="normal"
         disabled={loading}
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            '&:hover fieldset': {
+              borderColor: 'primary.main',
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: 'primary.main',
+            },
+          },
+        }}
       />
 
       <TextField
@@ -87,6 +115,16 @@ const TripPlannerForm: React.FC<TripPlannerFormProps> = ({ onSubmit, loading }) 
         placeholder="e.g., $2000, ¥300000"
         margin="normal"
         disabled={loading}
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            '&:hover fieldset': {
+              borderColor: 'primary.main',
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: 'primary.main',
+            },
+          },
+        }}
       />
 
       <TextField
@@ -100,6 +138,16 @@ const TripPlannerForm: React.FC<TripPlannerFormProps> = ({ onSubmit, loading }) 
         multiline
         rows={2}
         disabled={loading}
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            '&:hover fieldset': {
+              borderColor: 'primary.main',
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: 'primary.main',
+            },
+          },
+        }}
       />
 
       <FormControl fullWidth margin="normal" disabled={loading}>
@@ -110,6 +158,16 @@ const TripPlannerForm: React.FC<TripPlannerFormProps> = ({ onSubmit, loading }) 
           value={formData.travel_style}
           label="Travel Style (Optional)"
           onChange={handleSelectChange}
+          sx={{
+            '& .MuiOutlinedInput-notchedOutline': {
+              '&:hover': {
+                borderColor: 'primary.main',
+              },
+            },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+              borderColor: 'primary.main',
+            },
+          }}
         >
           <MenuItem value="">
             <em>Not specified</em>
@@ -131,7 +189,21 @@ const TripPlannerForm: React.FC<TripPlannerFormProps> = ({ onSubmit, loading }) 
         variant="contained"
         disabled={!isFormValid || loading}
         startIcon={loading ? <CircularProgress size={20} /> : <Send />}
-        sx={{ mt: 3, mb: 2, py: 1.5 }}
+        sx={{ 
+          mt: 4, 
+          mb: 2, 
+          py: 1.5,
+          background: 'linear-gradient(45deg, #1976d2 30%, #42a5f5 90%)',
+          boxShadow: '0 3px 5px 2px rgba(25, 118, 210, .3)',
+          '&:hover': {
+            background: 'linear-gradient(45deg, #1565c0 30%, #1976d2 90%)',
+            boxShadow: '0 6px 10px 4px rgba(25, 118, 210, .4)',
+          },
+          '&:disabled': {
+            background: 'rgba(255, 255, 255, 0.12)',
+            boxShadow: 'none',
+          }
+        }}
       >
         {loading ? 'Planning Your Trip...' : 'Plan My Trip'}
       </Button>

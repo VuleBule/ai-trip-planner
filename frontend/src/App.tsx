@@ -20,22 +20,64 @@ import { TripRequest, TripResponse } from './types/trip';
 
 const theme = createTheme({
   palette: {
+    mode: 'dark',
     primary: {
-      main: '#1976d2',
+      main: '#90caf9',
+      light: '#e3f2fd',
+      dark: '#42a5f5',
     },
     secondary: {
-      main: '#dc004e',
+      main: '#f48fb1',
+      light: '#f8bbd9',
+      dark: '#ec407a',
     },
     background: {
-      default: '#f5f5f5',
+      default: '#0a0a0a',
+      paper: '#1a1a1a',
     },
+    text: {
+      primary: '#ffffff',
+      secondary: '#b0b0b0',
+    },
+    divider: '#333333',
   },
   typography: {
     h3: {
       fontWeight: 600,
+      color: '#ffffff',
     },
     h5: {
       fontWeight: 500,
+      color: '#ffffff',
+    },
+    h6: {
+      color: '#ffffff',
+    },
+  },
+  components: {
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#1a1a1a',
+          border: '1px solid #333333',
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#1a1a1a',
+          border: '1px solid #333333',
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#1a1a1a',
+          borderBottom: '1px solid #333333',
+        },
+      },
     },
   },
 });
@@ -98,14 +140,26 @@ function App() {
             sx={{
               p: 4,
               mb: 4,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white'
+              background: 'linear-gradient(135deg, #1a237e 0%, #311b92 50%, #4a148c 100%)',
+              color: 'white',
+              position: 'relative',
+              overflow: 'hidden',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'radial-gradient(circle at 30% 20%, rgba(144, 202, 249, 0.1) 0%, transparent 50%)',
+                pointerEvents: 'none',
+              }
             }}
           >
-            <Typography variant="h3" component="h1" gutterBottom align="center">
+            <Typography variant="h3" component="h1" gutterBottom align="center" sx={{ position: 'relative', zIndex: 1 }}>
               Plan Your Perfect Trip
             </Typography>
-            <Typography variant="h6" align="center" sx={{ opacity: 0.9 }}>
+            <Typography variant="h6" align="center" sx={{ opacity: 0.9, position: 'relative', zIndex: 1 }}>
               Let our AI agents help you discover amazing destinations, create itineraries,
               manage budgets, and find local experiences
             </Typography>
@@ -114,9 +168,21 @@ function App() {
           {/* Features Cards */}
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 4 }}>
             <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
-              <Card sx={{ height: '100%', textAlign: 'center', p: 2 }}>
+              <Card 
+                sx={{ 
+                  height: '100%', 
+                  textAlign: 'center', 
+                  p: 2,
+                  transition: 'all 0.3s ease-in-out',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: '0 8px 25px rgba(144, 202, 249, 0.15)',
+                    borderColor: 'primary.main',
+                  }
+                }}
+              >
                 <CardContent>
-                  <Typography variant="h6" gutterBottom>
+                  <Typography variant="h6" gutterBottom sx={{ color: 'primary.main' }}>
                     🔍 Research
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
@@ -126,9 +192,21 @@ function App() {
               </Card>
             </Box>
             <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
-              <Card sx={{ height: '100%', textAlign: 'center', p: 2 }}>
+              <Card 
+                sx={{ 
+                  height: '100%', 
+                  textAlign: 'center', 
+                  p: 2,
+                  transition: 'all 0.3s ease-in-out',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: '0 8px 25px rgba(76, 175, 80, 0.15)',
+                    borderColor: 'success.main',
+                  }
+                }}
+              >
                 <CardContent>
-                  <Typography variant="h6" gutterBottom>
+                  <Typography variant="h6" gutterBottom sx={{ color: 'success.main' }}>
                     📅 Itineraries
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
@@ -138,9 +216,21 @@ function App() {
               </Card>
             </Box>
             <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
-              <Card sx={{ height: '100%', textAlign: 'center', p: 2 }}>
+              <Card 
+                sx={{ 
+                  height: '100%', 
+                  textAlign: 'center', 
+                  p: 2,
+                  transition: 'all 0.3s ease-in-out',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: '0 8px 25px rgba(255, 193, 7, 0.15)',
+                    borderColor: 'warning.main',
+                  }
+                }}
+              >
                 <CardContent>
-                  <Typography variant="h6" gutterBottom>
+                  <Typography variant="h6" gutterBottom sx={{ color: 'warning.main' }}>
                     💰 Budget
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
@@ -150,9 +240,21 @@ function App() {
               </Card>
             </Box>
             <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
-              <Card sx={{ height: '100%', textAlign: 'center', p: 2 }}>
+              <Card 
+                sx={{ 
+                  height: '100%', 
+                  textAlign: 'center', 
+                  p: 2,
+                  transition: 'all 0.3s ease-in-out',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: '0 8px 25px rgba(244, 143, 177, 0.15)',
+                    borderColor: 'secondary.main',
+                  }
+                }}
+              >
                 <CardContent>
-                  <Typography variant="h6" gutterBottom>
+                  <Typography variant="h6" gutterBottom sx={{ color: 'secondary.main' }}>
                     🍽️ Local
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
