@@ -47,15 +47,15 @@ def setup_tracing():
         api_key = os.getenv("ARIZE_API_KEY")
         
         if not space_id or not api_key or space_id == "your_arize_space_id_here" or api_key == "your_arize_api_key_here":
-            print("⚠️ Arize credentials not configured properly.")
-            print("📝 Please set ARIZE_SPACE_ID and ARIZE_API_KEY environment variables.")
-            print("📝 Copy backend/env_example.txt to backend/.env and update with your credentials.")
+            print("WARNING: Arize credentials not configured properly.")
+            print("NOTE: Please set ARIZE_SPACE_ID and ARIZE_API_KEY environment variables.")
+            print("NOTE: Copy backend/env_example.txt to backend/.env and update with your credentials.")
             return None
             
         tracer_provider = register(
             space_id=space_id,
             api_key=api_key,
-            project_name="trip-planner"
+            project_name="wnba-team-builder"
         )
         
         # Only instrument LangChain to avoid duplicate traces
@@ -71,16 +71,16 @@ def setup_tracing():
             skip_dep_check=True
         )
         
-        print("✅ Arize tracing initialized successfully (LangChain + LiteLLM only)")
-        print(f"📊 Project: trip-planner")
-        print(f"🔗 Space ID: {space_id[:8]}...")
+        print("SUCCESS: Arize tracing initialized successfully (LangChain + LiteLLM only)")
+        print(f"PROJECT: wnba-team-builder")
+        print(f"SPACE ID: {space_id[:8]}...")
         
         return tracer_provider
         
     except Exception as e:
-        print(f"⚠️ Arize tracing setup failed: {str(e)}")
-        print("📝 Continuing without tracing - check your ARIZE_SPACE_ID and ARIZE_API_KEY")
-        print("📝 Also ensure you have the latest version of openinference packages")
+        print(f"WARNING: Arize tracing setup failed: {str(e)}")
+        print("NOTE: Continuing without tracing - check your ARIZE_SPACE_ID and ARIZE_API_KEY")
+        print("NOTE: Also ensure you have the latest version of openinference packages")
         return None
 
 @asynccontextmanager
@@ -100,7 +100,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Pydantic models
+# Pydantic models for WNBA Team Building
+class RosterRequest(BaseModel):
+    team: str                           # Required - WNBA team
+    season: str                         # Required - Season year (2025, 2026)
+    strategy: str                       # Required - Team building strategy
+    priorities: Optional[List[str]] = []  # Optional - Team priorities
+    cap_target: Optional[str] = None    # Optional - Salary cap approach
+
+class RosterResponse(BaseModel):
+    result: str
+    agent_type: Optional[str] = "wnba_team_builder"
+
+# Legacy models for backward compatibility (can be removed later)
 class TripRequest(BaseModel):
     destination: str
     duration: str
@@ -111,7 +123,13 @@ class TripRequest(BaseModel):
 class TripResponse(BaseModel):
     result: str
 
-# Define the state for our graph
+# Define the state for our WNBA team building graph
+class RosterBuilderState(TypedDict):
+    messages: Annotated[List[BaseMessage], operator.add]
+    roster_request: Dict[str, Any]
+    final_result: Optional[str]
+
+# Legacy state for backward compatibility
 class TripPlannerState(TypedDict):
     messages: Annotated[List[BaseMessage], operator.add]
     trip_request: Dict[str, Any]
@@ -132,58 +150,61 @@ search_tools = []
 if os.getenv("TAVILY_API_KEY"):
     search_tools.append(TavilySearchResults(max_results=5))
 
-# Define trip planning tools with proper trace context
+# Define WNBA team building tools with proper trace context
 @tool
-def research_destination(destination: str, duration: str) -> str:
-    """Research a destination comprehensively for trip planning.
+def analyze_player_performance(team: str, season: str, strategy: str) -> str:
+    """Analyze current player performance and roster composition for a WNBA team.
     
     Args:
-        destination: The destination to research
-        duration: Duration of the trip
+        team: The WNBA team to analyze
+        season: The season (2025, 2026)
+        strategy: Team building strategy (championship, rebuild, etc.)
     """
     # System message for constraints
-    system_prompt = "You are a concise travel researcher. CRITICAL: Your response must be under 150 words and 800 characters. Focus on key facts only."
+    system_prompt = "You are a WNBA analyst. CRITICAL: Your response must be under 150 words and 800 characters. Focus on key roster analysis only."
     
-    # Use search tool if available, otherwise use LLM knowledge
+    # Use search tool if available for real-time WNBA data
     if search_tools:
         search_tool = search_tools[0]
-        search_results = search_tool.invoke(f"{destination} travel guide {duration} trip attractions weather")
+        search_results = search_tool.invoke(f"{team} WNBA roster {season} players performance stats")
         
-        prompt_template = """Research {destination} for {duration} trip based on: {search_results}
+        prompt_template = """Analyze {team} for {season} season with {strategy} strategy based on: {search_results}
 
-Key info only:
-- Weather/best time
-- Top 3 attractions  
-- Transport options
-- Cultural notes
-- Safety basics"""
+Key analysis:
+- Current roster strengths
+- Key player performances
+- Position needs
+- Contract situations
+- Strategy fit assessment"""
         
         prompt_template_variables = {
-            "destination": destination,
-            "duration": duration,
+            "team": team,
+            "season": season,
+            "strategy": strategy,
             "search_results": str(search_results)[:500]  # Limit search results length
         }
     else:
-        prompt_template = """Research {destination} for {duration} trip.
+        prompt_template = """Analyze {team} for {season} season with {strategy} strategy.
 
-Key info only:
-- Weather/best time
-- Top 3 attractions
-- Transport options  
-- Cultural notes
-- Safety basics
+Key analysis:
+- Current roster strengths  
+- Position needs
+- Key players to build around
+- Strategy alignment
+- Performance trends
 
-Note: Using general knowledge."""
+Note: Using general WNBA knowledge."""
         
         prompt_template_variables = {
-            "destination": destination,
-            "duration": duration
+            "team": team,
+            "season": season,
+            "strategy": strategy
         }
     
     with using_prompt_template(
         template=prompt_template,
         variables=prompt_template_variables,
-        version="research-v2.0",
+        version="player-analysis-v1.0",
     ):
         formatted_prompt = prompt_template.format(**prompt_template_variables)
         response = llm.invoke([
@@ -193,40 +214,46 @@ Note: Using general knowledge."""
     return response.content
 
 @tool
-def analyze_budget(destination: str, duration: str, budget: str = None) -> str:
-    """Analyze budget requirements for a trip.
+def analyze_salary_cap(team: str, season: str, cap_target: str = None) -> str:
+    """Analyze salary cap situation and constraints for a WNBA team.
     
     Args:
-        destination: The destination
-        duration: Duration of the trip
-        budget: Target budget (optional)
+        team: The WNBA team
+        season: The season (2025, 2026)
+        cap_target: Salary cap approach (conservative, aggressive, maximum)
     """
-    budget_text = budget or "provide options for different budget levels"
+    cap_approach = cap_target or "balanced approach within CBA constraints"
     
     # Use system message for strict constraints
-    system_prompt = "You are a concise travel budget analyst. CRITICAL: Your response must be under 100 words and 500 characters. No exceptions."
+    system_prompt = "You are a WNBA salary cap expert. CRITICAL: Your response must be under 100 words and 500 characters. Focus on CBA compliance."
     
-    prompt_template = """Budget for {duration} trip to {destination}. Target: {budget}
+    prompt_template = """Salary cap analysis for {team} {season} season. Approach: {cap_approach}
+
+2025 CBA Rules:
+- Salary cap: $1,507,100
+- Team minimum: $1,261,440
+- Player max: $214,466
+- Supermax: $249,244
 
 Include only:
-- Accommodation range
-- Transport costs  
-- Food budget
-- Activities cost
-- Total estimate
+- Current cap situation
+- Available space
+- Contract recommendations
+- CBA compliance notes
+- Strategic opportunities
 
 Be extremely concise."""
     
     prompt_template_variables = {
-        "destination": destination,
-        "duration": duration,
-        "budget": budget_text
+        "team": team,
+        "season": season,
+        "cap_approach": cap_approach
     }
     
     with using_prompt_template(
         template=prompt_template,
         variables=prompt_template_variables,
-        version="budget-v2.0",
+        version="salary-cap-v1.0",
     ):
         formatted_prompt = prompt_template.format(**prompt_template_variables)
         response = llm.invoke([
@@ -236,38 +263,43 @@ Be extremely concise."""
     return response.content
 
 @tool
-def curate_local_experiences(destination: str, interests: str = None) -> str:
-    """Curate authentic local experiences and hidden gems.
+def analyze_team_chemistry(team: str, priorities: List[str] = None, strategy: str = None) -> str:
+    """Analyze team chemistry, locker room dynamics, and player compatibility.
     
     Args:
-        destination: The destination
-        interests: Traveler interests (optional)
+        team: The WNBA team
+        priorities: Team priorities (leadership, defense, youth, etc.)
+        strategy: Team building strategy
     """
-    interests_text = interests or "general exploration and cultural immersion"
+    priorities_text = ", ".join(priorities) if priorities else "general team chemistry and leadership"
+    strategy_text = strategy or "balanced development"
     
     # System message for constraints
-    system_prompt = "You are a local experience curator. CRITICAL: Your response must be under 100 words and 600 characters. Focus on authentic, specific recommendations only."
+    system_prompt = "You are a WNBA team chemistry expert. CRITICAL: Your response must be under 100 words and 600 characters. Focus on team dynamics only."
     
-    prompt_template = """Local experiences in {destination} for: {interests}
+    prompt_template = """Team chemistry analysis for {team} focusing on: {priorities}
+Strategy: {strategy}
 
-Recommend only:
-- 2 hidden gem restaurants  
-- 1 cultural activity
-- 1 off-path location
-- 1 local market/workshop
-- Cultural etiquette tip
+Analyze only:
+- Current leadership structure
+- Locker room dynamics
+- Veteran-rookie mentorship
+- Position group chemistry
+- Chemistry gaps to address
+- Cultural fit considerations
 
 Be specific and concise."""
     
     prompt_template_variables = {
-        "destination": destination,
-        "interests": interests_text
+        "team": team,
+        "priorities": priorities_text,
+        "strategy": strategy_text
     }
     
     with using_prompt_template(
         template=prompt_template,
         variables=prompt_template_variables,
-        version="local-v2.0",
+        version="team-chemistry-v1.0",
     ):
         formatted_prompt = prompt_template.format(**prompt_template_variables)
         response = llm.invoke([
@@ -277,45 +309,55 @@ Be specific and concise."""
     return response.content
 
 @tool
-def create_itinerary(destination: str, duration: str, research: str, budget_info: str, local_info: str, travel_style: str = None) -> str:
-    """Create a comprehensive day-by-day itinerary.
+def construct_roster(team: str, season: str, player_analysis: str, cap_analysis: str, chemistry_analysis: str, strategy: str = None) -> str:
+    """Create a comprehensive roster construction plan and recommendations.
     
     Args:
-        destination: The destination
-        duration: Duration of the trip
-        research: Destination research information
-        budget_info: Budget analysis information
-        local_info: Local experiences information
-        travel_style: Travel style preferences (optional)
+        team: The WNBA team
+        season: The season (2025, 2026)
+        player_analysis: Player performance analysis
+        cap_analysis: Salary cap analysis
+        chemistry_analysis: Team chemistry analysis
+        strategy: Team building strategy (optional)
     """
-    style_text = travel_style or "Standard"
+    strategy_text = strategy or "Balanced Development"
     
     # System message for constraints
-    system_prompt = "You are a concise trip planner. CRITICAL: Your response must be under 200 words and 1200 characters. Create day-by-day format with times, activities, and costs only."
+    system_prompt = "You are a WNBA roster construction expert. CRITICAL: Your response must be under 200 words and 1200 characters. Provide actionable roster recommendations only."
     
-    prompt_template = """{duration} itinerary for {destination} ({travel_style} style):
+    prompt_template = """Roster construction plan for {team} {season} season ({strategy} strategy):
 
-Research: {research}
-Budget: {budget_info}
-Local: {local_info}
+Player Analysis: {player_analysis}
+Salary Cap: {cap_analysis}
+Team Chemistry: {chemistry_analysis}
 
-Format: Day X: Time - Activity - Cost
-Include top attractions, meals, transport between locations.
-Be concise."""
+CBA Constraints:
+- Salary cap: $1,507,100
+- Team minimum: $1,261,440  
+- Roster: 11-12 players required
+
+Provide specific recommendations:
+- Priority signings/trades
+- Contract structures
+- Roster composition
+- Timeline for moves
+- Risk assessment
+
+Be actionable and concise."""
     
     prompt_template_variables = {
-        "destination": destination,
-        "duration": duration,
-        "travel_style": style_text,
-        "research": research[:200],  # Limit input length
-        "budget_info": budget_info[:200],
-        "local_info": local_info[:200]
+        "team": team,
+        "season": season,
+        "strategy": strategy_text,
+        "player_analysis": player_analysis[:200],  # Limit input length
+        "cap_analysis": cap_analysis[:200],
+        "chemistry_analysis": chemistry_analysis[:200]
     }
     
     with using_prompt_template(
         template=prompt_template,
         variables=prompt_template_variables,
-        version="itinerary-v4.0",
+        version="roster-construction-v1.0",
     ):
         formatted_prompt = prompt_template.format(**prompt_template_variables)
         response = llm.invoke([
@@ -325,6 +367,16 @@ Be concise."""
     return response.content
 
 # Enhanced state to track parallel data
+# WNBA Team Building State
+class EfficientRosterBuilderState(TypedDict):
+    messages: Annotated[List[BaseMessage], operator.add]
+    roster_request: Dict[str, Any]
+    player_analysis_data: Optional[str]
+    salary_cap_data: Optional[str]
+    team_chemistry_data: Optional[str]
+    final_result: Optional[str]
+
+# Legacy state for backward compatibility
 class EfficientTripPlannerState(TypedDict):
     messages: Annotated[List[BaseMessage], operator.add]
     trip_request: Dict[str, Any]
@@ -333,7 +385,114 @@ class EfficientTripPlannerState(TypedDict):
     local_data: Optional[str]
     final_result: Optional[str]
 
-# Define more efficient nodes for parallel execution
+# Define WNBA roster building nodes for parallel execution
+def player_analysis_node(state: EfficientRosterBuilderState) -> EfficientRosterBuilderState:
+    """Analyze player performance in parallel"""
+    try:
+        roster_req = state["roster_request"]
+        print(f"[PLAYER] Starting player analysis for {roster_req.get('team', 'Unknown')}")
+        
+        player_result = analyze_player_performance.invoke({
+            "team": roster_req["team"], 
+            "season": roster_req["season"],
+            "strategy": roster_req["strategy"]
+        })
+        
+        print(f"[SUCCESS] Player analysis completed for {roster_req.get('team', 'Unknown')}")
+        return {
+            "messages": [HumanMessage(content=f"Player analysis completed: {player_result}")],
+            "player_analysis_data": player_result
+        }
+    except Exception as e:
+        print(f"[ERROR] Player analysis node error: {str(e)}")
+        return {
+            "messages": [HumanMessage(content=f"Player analysis failed: {str(e)}")],
+            "player_analysis_data": f"Player analysis failed: {str(e)}"
+        }
+
+def salary_cap_node(state: EfficientRosterBuilderState) -> EfficientRosterBuilderState:
+    """Analyze salary cap in parallel"""
+    try:
+        roster_req = state["roster_request"]
+        print(f"[CAP] Starting salary cap analysis for {roster_req.get('team', 'Unknown')}")
+        
+        cap_result = analyze_salary_cap.invoke({
+            "team": roster_req["team"], 
+            "season": roster_req["season"],
+            "cap_target": roster_req.get("cap_target")
+        })
+        
+        print(f"[SUCCESS] Salary cap analysis completed for {roster_req.get('team', 'Unknown')}")
+        return {
+            "messages": [HumanMessage(content=f"Salary cap analysis completed: {cap_result}")],
+            "salary_cap_data": cap_result
+        }
+    except Exception as e:
+        print(f"❌ Salary cap node error: {str(e)}")
+        return {
+            "messages": [HumanMessage(content=f"Salary cap analysis failed: {str(e)}")],
+            "salary_cap_data": f"Salary cap analysis failed: {str(e)}"
+        }
+
+def team_chemistry_node(state: EfficientRosterBuilderState) -> EfficientRosterBuilderState:
+    """Analyze team chemistry in parallel"""
+    try:
+        roster_req = state["roster_request"]
+        print(f"🎯 Starting team chemistry analysis for {roster_req.get('team', 'Unknown')}")
+        
+        chemistry_result = analyze_team_chemistry.invoke({
+            "team": roster_req["team"], 
+            "priorities": roster_req.get("priorities", []),
+            "strategy": roster_req["strategy"]
+        })
+        
+        print(f"✅ Team chemistry analysis completed for {roster_req.get('team', 'Unknown')}")
+        return {
+            "messages": [HumanMessage(content=f"Team chemistry analysis completed: {chemistry_result}")],
+            "team_chemistry_data": chemistry_result
+        }
+    except Exception as e:
+        print(f"❌ Team chemistry node error: {str(e)}")
+        return {
+            "messages": [HumanMessage(content=f"Team chemistry analysis failed: {str(e)}")],
+            "team_chemistry_data": f"Team chemistry analysis failed: {str(e)}"
+        }
+
+def roster_construction_node(state: EfficientRosterBuilderState) -> EfficientRosterBuilderState:
+    """Create final roster construction plan using all gathered data"""
+    try:
+        roster_req = state["roster_request"]
+        print(f"📋 Starting roster construction for {roster_req.get('team', 'Unknown')}")
+        
+        # Get data from previous nodes
+        player_data = state.get("player_analysis_data", "")
+        cap_data = state.get("salary_cap_data", "")
+        chemistry_data = state.get("team_chemistry_data", "")
+        
+        print(f"📊 Data available - Player: {len(player_data) if player_data else 0} chars, Cap: {len(cap_data) if cap_data else 0} chars, Chemistry: {len(chemistry_data) if chemistry_data else 0} chars")
+        
+        roster_result = construct_roster.invoke({
+            "team": roster_req["team"],
+            "season": roster_req["season"],
+            "player_analysis": player_data,
+            "cap_analysis": cap_data,
+            "chemistry_analysis": chemistry_data,
+            "strategy": roster_req["strategy"]
+        })
+        
+        print(f"✅ Roster construction completed for {roster_req.get('team', 'Unknown')}")
+        return {
+            "messages": [HumanMessage(content=roster_result)],
+            "final_result": roster_result
+        }
+    except Exception as e:
+        print(f"❌ Roster construction node error: {str(e)}")
+        return {
+            "messages": [HumanMessage(content=f"Roster construction failed: {str(e)}")],
+            "final_result": f"Roster construction failed: {str(e)}"
+        }
+
+# Legacy trip planning nodes for backward compatibility
 def research_node(state: EfficientTripPlannerState) -> EfficientTripPlannerState:
     """Research destination in parallel"""
     try:
@@ -438,7 +597,37 @@ def itinerary_node(state: EfficientTripPlannerState) -> EfficientTripPlannerStat
             "final_result": f"Itinerary creation failed: {str(e)}"
         }
 
-# Build the optimized graph with parallel execution
+# Build the WNBA roster building graph with parallel execution
+def create_efficient_roster_building_graph():
+    """Create and compile the optimized WNBA roster building graph with parallel execution"""
+    
+    # Create the state graph
+    workflow = StateGraph(EfficientRosterBuilderState)
+    
+    # Add parallel processing nodes
+    workflow.add_node("player_analysis", player_analysis_node)
+    workflow.add_node("salary_cap", salary_cap_node)
+    workflow.add_node("team_chemistry", team_chemistry_node)
+    workflow.add_node("roster_construction", roster_construction_node)
+    
+    # Start all analysis tasks in parallel
+    workflow.add_edge(START, "player_analysis")
+    workflow.add_edge(START, "salary_cap")
+    workflow.add_edge(START, "team_chemistry")
+    
+    # All parallel tasks feed into roster construction
+    workflow.add_edge("player_analysis", "roster_construction")
+    workflow.add_edge("salary_cap", "roster_construction")
+    workflow.add_edge("team_chemistry", "roster_construction")
+    
+    # Roster construction is the final step
+    workflow.add_edge("roster_construction", END)
+    
+    # Compile with memory
+    memory = MemorySaver()
+    return workflow.compile(checkpointer=memory)
+
+# Legacy trip planning graph for backward compatibility
 def create_efficient_trip_planning_graph():
     """Create and compile the optimized trip planning graph with parallel execution"""
     
@@ -471,7 +660,50 @@ def create_efficient_trip_planning_graph():
 # API Routes
 @app.get("/")
 async def root():
-    return {"message": "Trip Planner API is running with simplified LangGraph!"}
+    return {"message": "WNBA Team Builder API is running with parallel LangGraph analysis!"}
+
+
+@app.post("/build-roster", response_model=RosterResponse)
+async def build_roster(roster_request: RosterRequest):
+    """Build a WNBA roster using optimized parallel LangGraph workflow"""
+    try:
+        # Create the efficient WNBA graph
+        graph = create_efficient_roster_building_graph()
+        
+        # Prepare initial state with the new structure
+        initial_state = {
+            "messages": [],
+            "roster_request": roster_request.model_dump(),
+            "player_analysis_data": None,
+            "salary_cap_data": None,
+            "team_chemistry_data": None,
+            "final_result": None
+        }
+        
+        print(f"[START] Starting WNBA roster building for {roster_request.team} ({roster_request.season})")
+        print(f"[STRATEGY] Strategy: {roster_request.strategy}")
+        print(f"[PRIORITIES] Priorities: {roster_request.priorities}")
+        print(f"[CAP] Cap Target: {roster_request.cap_target}")
+        
+        # Configure for thread-based execution
+        config = {"configurable": {"thread_id": "wnba_roster_analysis"}}
+        
+        # Run the graph - this will execute all parallel nodes then final construction
+        result = graph.invoke(initial_state, config)
+        
+        print(f"[SUCCESS] WNBA roster building completed for {roster_request.team}")
+        
+        # Extract the final result
+        final_result = result.get("final_result", "Roster building analysis completed successfully.")
+        
+        return RosterResponse(
+            result=final_result,
+            agent_type="wnba_team_builder"
+        )
+        
+    except Exception as e:
+        print(f"[ERROR] Error in WNBA roster building: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Roster building failed: {str(e)}")
 
 
 @app.post("/plan-trip", response_model=TripResponse)
