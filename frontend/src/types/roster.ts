@@ -31,7 +31,7 @@ export const WNBA_TEAMS = [
 ] as const;
 
 // Team Building Strategies
-export const TEAM_STRATEGIES = [
+export const ROSTER_STRATEGIES = [
   { value: 'championship', label: 'Championship Contender' },
   { value: 'playoff', label: 'Playoff Push' },
   { value: 'balanced', label: 'Balanced Development' },
@@ -40,7 +40,7 @@ export const TEAM_STRATEGIES = [
 ] as const;
 
 // Team Priorities
-export const TEAM_PRIORITIES = [
+export const ROSTER_PRIORITIES = [
   { value: 'defense', label: 'Defensive Improvement' },
   { value: 'offense', label: 'Offensive Firepower' },
   { value: 'leadership', label: 'Veteran Leadership' },

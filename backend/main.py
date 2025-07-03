@@ -89,7 +89,7 @@ async def lifespan(app: FastAPI):
     setup_tracing()
     yield
 
-app = FastAPI(title="Trip Planner API", lifespan=lifespan)
+app = FastAPI(title="WNBA Team Builder API", lifespan=lifespan)
 
 # Add CORS middleware
 app.add_middleware(
@@ -123,17 +123,9 @@ class TripRequest(BaseModel):
 class TripResponse(BaseModel):
     result: str
 
-# Define the state for our WNBA team building graph
-class RosterBuilderState(TypedDict):
-    messages: Annotated[List[BaseMessage], operator.add]
-    roster_request: Dict[str, Any]
-    final_result: Optional[str]
-
-# Legacy state for backward compatibility
-class TripPlannerState(TypedDict):
-    messages: Annotated[List[BaseMessage], operator.add]
-    trip_request: Dict[str, Any]
-    final_result: Optional[str]
+# ============================================================================
+# LLM Configuration and Tools
+# ============================================================================
 
 # Initialize the LLM - Using GPT-4.1 for production
 # Note: This should be initialized after instrumentation setup
@@ -150,7 +142,9 @@ search_tools = []
 if os.getenv("TAVILY_API_KEY"):
     search_tools.append(TavilySearchResults(max_results=5))
 
-# Define WNBA team building tools with proper trace context
+# ============================================================================
+# WNBA Team Building Tools
+# ============================================================================
 @tool
 def analyze_player_performance(team: str, season: str, strategy: str) -> str:
     """Analyze current player performance and roster composition for a WNBA team.
@@ -366,8 +360,11 @@ Be actionable and concise."""
         ])
     return response.content
 
-# Enhanced state to track parallel data
-# WNBA Team Building State
+# ============================================================================
+# LangGraph State Definitions
+# ============================================================================
+
+# Enhanced state to track parallel data for WNBA Team Building
 class EfficientRosterBuilderState(TypedDict):
     messages: Annotated[List[BaseMessage], operator.add]
     roster_request: Dict[str, Any]
@@ -428,7 +425,7 @@ def salary_cap_node(state: EfficientRosterBuilderState) -> EfficientRosterBuilde
             "salary_cap_data": cap_result
         }
     except Exception as e:
-        print(f"❌ Salary cap node error: {str(e)}")
+        print(f"[ERROR] Salary cap node error: {str(e)}")
         return {
             "messages": [HumanMessage(content=f"Salary cap analysis failed: {str(e)}")],
             "salary_cap_data": f"Salary cap analysis failed: {str(e)}"
@@ -438,7 +435,7 @@ def team_chemistry_node(state: EfficientRosterBuilderState) -> EfficientRosterBu
     """Analyze team chemistry in parallel"""
     try:
         roster_req = state["roster_request"]
-        print(f"🎯 Starting team chemistry analysis for {roster_req.get('team', 'Unknown')}")
+        print(f"[CHEMISTRY] Starting team chemistry analysis for {roster_req.get('team', 'Unknown')}")
         
         chemistry_result = analyze_team_chemistry.invoke({
             "team": roster_req["team"], 
@@ -446,13 +443,13 @@ def team_chemistry_node(state: EfficientRosterBuilderState) -> EfficientRosterBu
             "strategy": roster_req["strategy"]
         })
         
-        print(f"✅ Team chemistry analysis completed for {roster_req.get('team', 'Unknown')}")
+        print(f"[SUCCESS] Team chemistry analysis completed for {roster_req.get('team', 'Unknown')}")
         return {
             "messages": [HumanMessage(content=f"Team chemistry analysis completed: {chemistry_result}")],
             "team_chemistry_data": chemistry_result
         }
     except Exception as e:
-        print(f"❌ Team chemistry node error: {str(e)}")
+        print(f"[ERROR] Team chemistry node error: {str(e)}")
         return {
             "messages": [HumanMessage(content=f"Team chemistry analysis failed: {str(e)}")],
             "team_chemistry_data": f"Team chemistry analysis failed: {str(e)}"
@@ -462,14 +459,14 @@ def roster_construction_node(state: EfficientRosterBuilderState) -> EfficientRos
     """Create final roster construction plan using all gathered data"""
     try:
         roster_req = state["roster_request"]
-        print(f"📋 Starting roster construction for {roster_req.get('team', 'Unknown')}")
+        print(f"[ROSTER] Starting roster construction for {roster_req.get('team', 'Unknown')}")
         
         # Get data from previous nodes
         player_data = state.get("player_analysis_data", "")
         cap_data = state.get("salary_cap_data", "")
         chemistry_data = state.get("team_chemistry_data", "")
         
-        print(f"📊 Data available - Player: {len(player_data) if player_data else 0} chars, Cap: {len(cap_data) if cap_data else 0} chars, Chemistry: {len(chemistry_data) if chemistry_data else 0} chars")
+        print(f"[DATA] Data available - Player: {len(player_data) if player_data else 0} chars, Cap: {len(cap_data) if cap_data else 0} chars, Chemistry: {len(chemistry_data) if chemistry_data else 0} chars")
         
         roster_result = construct_roster.invoke({
             "team": roster_req["team"],
@@ -480,37 +477,40 @@ def roster_construction_node(state: EfficientRosterBuilderState) -> EfficientRos
             "strategy": roster_req["strategy"]
         })
         
-        print(f"✅ Roster construction completed for {roster_req.get('team', 'Unknown')}")
+        print(f"[SUCCESS] Roster construction completed for {roster_req.get('team', 'Unknown')}")
         return {
             "messages": [HumanMessage(content=roster_result)],
             "final_result": roster_result
         }
     except Exception as e:
-        print(f"❌ Roster construction node error: {str(e)}")
+        print(f"[ERROR] Roster construction node error: {str(e)}")
         return {
             "messages": [HumanMessage(content=f"Roster construction failed: {str(e)}")],
             "final_result": f"Roster construction failed: {str(e)}"
         }
 
-# Legacy trip planning nodes for backward compatibility
+# ============================================================================
+# Legacy Trip Planning Nodes (Backward Compatibility)
+# ============================================================================
+
 def research_node(state: EfficientTripPlannerState) -> EfficientTripPlannerState:
     """Research destination in parallel"""
     try:
         trip_req = state["trip_request"]
-        print(f"🔍 Starting research for {trip_req.get('destination', 'Unknown')}")
+        print(f"[RESEARCH] Starting research for {trip_req.get('destination', 'Unknown')}")
         
         research_result = research_destination.invoke({
             "destination": trip_req["destination"], 
             "duration": trip_req["duration"]
         })
         
-        print(f"✅ Research completed for {trip_req.get('destination', 'Unknown')}")
+        print(f"[SUCCESS] Research completed for {trip_req.get('destination', 'Unknown')}")
         return {
             "messages": [HumanMessage(content=f"Research completed: {research_result}")],
             "research_data": research_result
         }
     except Exception as e:
-        print(f"❌ Research node error: {str(e)}")
+        print(f"[ERROR] Research node error: {str(e)}")
         return {
             "messages": [HumanMessage(content=f"Research failed: {str(e)}")],
             "research_data": f"Research failed: {str(e)}"
@@ -520,7 +520,7 @@ def budget_node(state: EfficientTripPlannerState) -> EfficientTripPlannerState:
     """Analyze budget in parallel"""
     try:
         trip_req = state["trip_request"]
-        print(f"💰 Starting budget analysis for {trip_req.get('destination', 'Unknown')}")
+        print(f"[BUDGET] Starting budget analysis for {trip_req.get('destination', 'Unknown')}")
         
         budget_result = analyze_budget.invoke({
             "destination": trip_req["destination"], 
@@ -528,13 +528,13 @@ def budget_node(state: EfficientTripPlannerState) -> EfficientTripPlannerState:
             "budget": trip_req.get("budget")
         })
         
-        print(f"✅ Budget analysis completed for {trip_req.get('destination', 'Unknown')}")
+        print(f"[SUCCESS] Budget analysis completed for {trip_req.get('destination', 'Unknown')}")
         return {
             "messages": [HumanMessage(content=f"Budget analysis completed: {budget_result}")],
             "budget_data": budget_result
         }
     except Exception as e:
-        print(f"❌ Budget node error: {str(e)}")
+        print(f"[ERROR] Budget node error: {str(e)}")
         return {
             "messages": [HumanMessage(content=f"Budget analysis failed: {str(e)}")],
             "budget_data": f"Budget analysis failed: {str(e)}"
@@ -544,20 +544,20 @@ def local_experiences_node(state: EfficientTripPlannerState) -> EfficientTripPla
     """Curate local experiences in parallel"""
     try:
         trip_req = state["trip_request"]
-        print(f"🍽️ Starting local experiences curation for {trip_req.get('destination', 'Unknown')}")
+        print(f"[LOCAL] Starting local experiences curation for {trip_req.get('destination', 'Unknown')}")
         
         local_result = curate_local_experiences.invoke({
             "destination": trip_req["destination"], 
             "interests": trip_req.get("interests")
         })
         
-        print(f"✅ Local experiences completed for {trip_req.get('destination', 'Unknown')}")
+        print(f"[SUCCESS] Local experiences completed for {trip_req.get('destination', 'Unknown')}")
         return {
             "messages": [HumanMessage(content=f"Local experiences curated: {local_result}")],
             "local_data": local_result
         }
     except Exception as e:
-        print(f"❌ Local experiences node error: {str(e)}")
+        print(f"[ERROR] Local experiences node error: {str(e)}")
         return {
             "messages": [HumanMessage(content=f"Local experiences failed: {str(e)}")],
             "local_data": f"Local experiences failed: {str(e)}"
@@ -567,14 +567,14 @@ def itinerary_node(state: EfficientTripPlannerState) -> EfficientTripPlannerStat
     """Create final itinerary using all gathered data"""
     try:
         trip_req = state["trip_request"]
-        print(f"📅 Starting itinerary creation for {trip_req.get('destination', 'Unknown')}")
+        print(f"[ITINERARY] Starting itinerary creation for {trip_req.get('destination', 'Unknown')}")
         
         # Get data from previous nodes
         research_data = state.get("research_data", "")
         budget_data = state.get("budget_data", "")
         local_data = state.get("local_data", "")
         
-        print(f"📊 Data available - Research: {len(research_data) if research_data else 0} chars, Budget: {len(budget_data) if budget_data else 0} chars, Local: {len(local_data) if local_data else 0} chars")
+        print(f"[DATA] Data available - Research: {len(research_data) if research_data else 0} chars, Budget: {len(budget_data) if budget_data else 0} chars, Local: {len(local_data) if local_data else 0} chars")
         
         itinerary_result = create_itinerary.invoke({
             "destination": trip_req["destination"],
@@ -585,13 +585,13 @@ def itinerary_node(state: EfficientTripPlannerState) -> EfficientTripPlannerStat
             "travel_style": trip_req.get("travel_style")
         })
         
-        print(f"✅ Itinerary creation completed for {trip_req.get('destination', 'Unknown')}")
+        print(f"[SUCCESS] Itinerary creation completed for {trip_req.get('destination', 'Unknown')}")
         return {
             "messages": [HumanMessage(content=itinerary_result)],
             "final_result": itinerary_result
         }
     except Exception as e:
-        print(f"❌ Itinerary node error: {str(e)}")
+        print(f"[ERROR] Itinerary node error: {str(e)}")
         return {
             "messages": [HumanMessage(content=f"Itinerary creation failed: {str(e)}")],
             "final_result": f"Itinerary creation failed: {str(e)}"
@@ -657,7 +657,10 @@ def create_efficient_trip_planning_graph():
     memory = MemorySaver()
     return workflow.compile(checkpointer=memory)
 
+# ============================================================================
 # API Routes
+# ============================================================================
+
 @app.get("/")
 async def root():
     return {"message": "WNBA Team Builder API is running with parallel LangGraph analysis!"}
@@ -726,11 +729,11 @@ async def plan_trip(trip_request: TripRequest):
         # Execute the workflow with parallel processing
         config = {"configurable": {"thread_id": f"trip_{trip_request.destination.replace(' ', '_')}_{trip_request.duration.replace(' ', '_')}"}}
         
-        print(f"🚀 Starting trip planning for {trip_request.destination} ({trip_request.duration})")
+        print(f"[START] Starting trip planning for {trip_request.destination} ({trip_request.duration})")
         
         output = graph.invoke(initial_state, config)
         
-        print(f"✅ Trip planning completed. Output keys: {list(output.keys()) if output else 'None'}")
+        print(f"[SUCCESS] Trip planning completed. Output keys: {list(output.keys()) if output else 'None'}")
         
         # Return the final result
         if output and output.get("final_result"):
@@ -744,7 +747,7 @@ async def plan_trip(trip_request: TripRequest):
         return TripResponse(result="Trip planning completed but no detailed results available.")
         
     except Exception as e:
-        print(f"❌ Trip planning error: {str(e)}")
+        print(f"[ERROR] Trip planning error: {str(e)}")
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Trip planning failed: {str(e)}")
