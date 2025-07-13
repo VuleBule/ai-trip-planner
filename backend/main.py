@@ -29,6 +29,7 @@ from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 from langchain_core.tools import tool
 from langchain_community.tools.tavily_search import TavilySearchResults
+from models import ModelFactory
 
 # Configure LiteLLM
 import litellm
@@ -107,10 +108,12 @@ class RosterRequest(BaseModel):
     strategy: str                       # Required - Team building strategy
     priorities: Optional[List[str]] = []  # Optional - Team priorities
     cap_target: Optional[str] = None    # Optional - Salary cap approach
+    model_type: Optional[str] = "openai"  # Optional - AI model to use ("openai" or "ollama")
 
 class RosterResponse(BaseModel):
     result: str
     agent_type: Optional[str] = "wnba_team_builder"
+    model_used: Optional[str] = None    # NEW - Which model was used for the request
 
 # Legacy models for backward compatibility (can be removed later)
 class TripRequest(BaseModel):
@@ -122,6 +125,11 @@ class TripRequest(BaseModel):
 
 class TripResponse(BaseModel):
     result: str
+
+class ModelHealthResponse(BaseModel):
+    openai: bool
+    ollama: bool
+    available_models: List[str]
 
 # ============================================================================
 # LLM Configuration and Tools
@@ -756,6 +764,27 @@ async def plan_trip(trip_request: TripRequest):
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "service": "trip-planner-backend-simplified"}
+
+
+@app.get("/models/health", response_model=ModelHealthResponse)
+async def check_models():
+    """Check the health status of available AI models"""
+    try:
+        available_models = ModelFactory.get_available_models()
+        ollama_models = ModelFactory.get_ollama_models()
+        
+        return ModelHealthResponse(
+            openai=available_models["openai"],
+            ollama=available_models["ollama"],
+            available_models=ollama_models
+        )
+    except Exception as e:
+        print(f"[ERROR] Model health check failed: {str(e)}")
+        return ModelHealthResponse(
+            openai=False,
+            ollama=False,
+            available_models=[]
+        )
 
 
 if __name__ == "__main__":
