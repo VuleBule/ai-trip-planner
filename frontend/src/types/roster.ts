@@ -6,12 +6,14 @@ export interface RosterRequest {
   strategy: string;                // Required - Team building strategy
   priorities?: string[];           // Optional - Array of team priorities
   cap_target?: string;            // Optional - Salary cap approach
+  model_type?: string;            // Optional - AI model to use ("openai" or "ollama")
 }
 
 export interface RosterResponse {
   agent_type?: string;
   result: string;                 // Comprehensive roster analysis and recommendations
   route_taken?: string;
+  model_used?: string;           // Which AI model was used for the request
 }
 
 // WNBA Teams (2025 season with Golden State expansion)

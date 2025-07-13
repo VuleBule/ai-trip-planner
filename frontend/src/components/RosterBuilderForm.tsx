@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -25,6 +25,7 @@ import {
   SEASON_OPTIONS,
   CAP_TARGETS
 } from '../types/roster';
+import { ModelSelector } from './ModelSelector';
 
 // Stunning animations for the form
 const glow = keyframes`
@@ -54,8 +55,26 @@ const RosterBuilderForm: React.FC<RosterBuilderFormProps> = ({ onSubmit, loading
     strategy: '',
     priorities: [],
     cap_target: '',
+    model_type: 'openai', // Default to OpenAI
   });
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [modelStatus, setModelStatus] = useState({ openai: false, ollama: false });
+
+  // Check model health on component mount
+  useEffect(() => {
+    checkModelHealth();
+  }, []);
+
+  const checkModelHealth = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/models/health');
+      const health = await response.json();
+      setModelStatus(health);
+    } catch (error) {
+      console.error('Failed to check model health:', error);
+      setModelStatus({ openai: false, ollama: false });
+    }
+  };
 
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
     const { name, value } = event.target;
@@ -70,6 +89,13 @@ const RosterBuilderForm: React.FC<RosterBuilderFormProps> = ({ onSubmit, loading
     setFormData(prev => ({
       ...prev,
       priorities: typeof value === 'string' ? value.split(',') : value,
+    }));
+  };
+
+  const handleModelChange = (model: string) => {
+    setFormData(prev => ({
+      ...prev,
+      model_type: model
     }));
   };
 
@@ -136,6 +162,14 @@ const RosterBuilderForm: React.FC<RosterBuilderFormProps> = ({ onSubmit, loading
           />
           🏆 TEAM CONFIGURATION
         </Typography>
+
+        {/* AI Model Selection */}
+        <ModelSelector
+          selectedModel={formData.model_type || 'openai'}
+          onModelChange={handleModelChange}
+          modelStatus={modelStatus}
+          isLoading={loading}
+        />
 
         {/* Team Selection */}
         <FormControl 
