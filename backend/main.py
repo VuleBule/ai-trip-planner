@@ -154,14 +154,18 @@ if os.getenv("TAVILY_API_KEY"):
 # WNBA Team Building Tools
 # ============================================================================
 @tool
-def analyze_player_performance(team: str, season: str, strategy: str) -> str:
+def analyze_player_performance(team: str, season: str, strategy: str, model_type: str = "openai") -> str:
     """Analyze current player performance and roster composition for a WNBA team.
     
     Args:
         team: The WNBA team to analyze
         season: The season (2025, 2026)
         strategy: Team building strategy (championship, rebuild, etc.)
+        model_type: AI model to use ("openai" or "ollama")
     """
+    # Get the appropriate LLM based on model_type
+    llm = ModelFactory.get_llm(model_type)
+    
     # System message for constraints
     system_prompt = "You are a WNBA analyst. CRITICAL: Your response must be under 150 words and 800 characters. Focus on key roster analysis only."
     
@@ -213,17 +217,25 @@ Note: Using general WNBA knowledge."""
             SystemMessage(content=system_prompt),
             HumanMessage(content=formatted_prompt)
         ])
-    return response.content
+    # Handle both string responses (Ollama) and message objects (OpenAI)
+    if hasattr(response, 'content'):
+        return response.content
+    else:
+        return str(response)
 
 @tool
-def analyze_salary_cap(team: str, season: str, cap_target: str = None) -> str:
+def analyze_salary_cap(team: str, season: str, cap_target: str = None, model_type: str = "openai") -> str:
     """Analyze salary cap situation and constraints for a WNBA team.
     
     Args:
         team: The WNBA team
         season: The season (2025, 2026)
         cap_target: Salary cap approach (conservative, aggressive, maximum)
+        model_type: AI model to use ("openai" or "ollama")
     """
+    # Get the appropriate LLM based on model_type
+    llm = ModelFactory.get_llm(model_type)
+    
     cap_approach = cap_target or "balanced approach within CBA constraints"
     
     # Use system message for strict constraints
@@ -262,17 +274,25 @@ Be extremely concise."""
             SystemMessage(content=system_prompt),
             HumanMessage(content=formatted_prompt)
         ])
-    return response.content
+    # Handle both string responses (Ollama) and message objects (OpenAI)
+    if hasattr(response, 'content'):
+        return response.content
+    else:
+        return str(response)
 
 @tool
-def analyze_team_chemistry(team: str, priorities: List[str] = None, strategy: str = None) -> str:
+def analyze_team_chemistry(team: str, priorities: List[str] = None, strategy: str = None, model_type: str = "openai") -> str:
     """Analyze team chemistry, locker room dynamics, and player compatibility.
     
     Args:
         team: The WNBA team
         priorities: Team priorities (leadership, defense, youth, etc.)
         strategy: Team building strategy
+        model_type: AI model to use ("openai" or "ollama")
     """
+    # Get the appropriate LLM based on model_type
+    llm = ModelFactory.get_llm(model_type)
+    
     priorities_text = ", ".join(priorities) if priorities else "general team chemistry and leadership"
     strategy_text = strategy or "balanced development"
     
@@ -308,10 +328,14 @@ Be specific and concise."""
             SystemMessage(content=system_prompt),
             HumanMessage(content=formatted_prompt)
         ])
-    return response.content
+    # Handle both string responses (Ollama) and message objects (OpenAI)
+    if hasattr(response, 'content'):
+        return response.content
+    else:
+        return str(response)
 
 @tool
-def construct_roster(team: str, season: str, player_analysis: str, cap_analysis: str, chemistry_analysis: str, strategy: str = None) -> str:
+def construct_roster(team: str, season: str, player_analysis: str, cap_analysis: str, chemistry_analysis: str, strategy: str = None, model_type: str = "openai") -> str:
     """Create a comprehensive roster construction plan and recommendations.
     
     Args:
@@ -321,7 +345,11 @@ def construct_roster(team: str, season: str, player_analysis: str, cap_analysis:
         cap_analysis: Salary cap analysis
         chemistry_analysis: Team chemistry analysis
         strategy: Team building strategy (optional)
+        model_type: AI model to use ("openai" or "ollama")
     """
+    # Get the appropriate LLM based on model_type
+    llm = ModelFactory.get_llm(model_type)
+    
     strategy_text = strategy or "Balanced Development"
     
     # System message for constraints
@@ -366,7 +394,11 @@ Be actionable and concise."""
             SystemMessage(content=system_prompt),
             HumanMessage(content=formatted_prompt)
         ])
-    return response.content
+    # Handle both string responses (Ollama) and message objects (OpenAI)
+    if hasattr(response, 'content'):
+        return response.content
+    else:
+        return str(response)
 
 # ============================================================================
 # LangGraph State Definitions
@@ -395,12 +427,14 @@ def player_analysis_node(state: EfficientRosterBuilderState) -> EfficientRosterB
     """Analyze player performance in parallel"""
     try:
         roster_req = state["roster_request"]
-        print(f"[PLAYER] Starting player analysis for {roster_req.get('team', 'Unknown')}")
+        model_type = roster_req.get("model_type", "openai")
+        print(f"[PLAYER] Starting player analysis for {roster_req.get('team', 'Unknown')} using {model_type}")
         
         player_result = analyze_player_performance.invoke({
             "team": roster_req["team"], 
             "season": roster_req["season"],
-            "strategy": roster_req["strategy"]
+            "strategy": roster_req["strategy"],
+            "model_type": model_type
         })
         
         print(f"[SUCCESS] Player analysis completed for {roster_req.get('team', 'Unknown')}")
@@ -419,12 +453,14 @@ def salary_cap_node(state: EfficientRosterBuilderState) -> EfficientRosterBuilde
     """Analyze salary cap in parallel"""
     try:
         roster_req = state["roster_request"]
-        print(f"[CAP] Starting salary cap analysis for {roster_req.get('team', 'Unknown')}")
+        model_type = roster_req.get("model_type", "openai")
+        print(f"[CAP] Starting salary cap analysis for {roster_req.get('team', 'Unknown')} using {model_type}")
         
         cap_result = analyze_salary_cap.invoke({
             "team": roster_req["team"], 
             "season": roster_req["season"],
-            "cap_target": roster_req.get("cap_target")
+            "cap_target": roster_req.get("cap_target"),
+            "model_type": model_type
         })
         
         print(f"[SUCCESS] Salary cap analysis completed for {roster_req.get('team', 'Unknown')}")
@@ -443,12 +479,14 @@ def team_chemistry_node(state: EfficientRosterBuilderState) -> EfficientRosterBu
     """Analyze team chemistry in parallel"""
     try:
         roster_req = state["roster_request"]
-        print(f"[CHEMISTRY] Starting team chemistry analysis for {roster_req.get('team', 'Unknown')}")
+        model_type = roster_req.get("model_type", "openai")
+        print(f"[CHEMISTRY] Starting team chemistry analysis for {roster_req.get('team', 'Unknown')} using {model_type}")
         
         chemistry_result = analyze_team_chemistry.invoke({
             "team": roster_req["team"], 
             "priorities": roster_req.get("priorities", []),
-            "strategy": roster_req["strategy"]
+            "strategy": roster_req["strategy"],
+            "model_type": model_type
         })
         
         print(f"[SUCCESS] Team chemistry analysis completed for {roster_req.get('team', 'Unknown')}")
@@ -467,7 +505,8 @@ def roster_construction_node(state: EfficientRosterBuilderState) -> EfficientRos
     """Create final roster construction plan using all gathered data"""
     try:
         roster_req = state["roster_request"]
-        print(f"[ROSTER] Starting roster construction for {roster_req.get('team', 'Unknown')}")
+        model_type = roster_req.get("model_type", "openai")
+        print(f"[ROSTER] Starting roster construction for {roster_req.get('team', 'Unknown')} using {model_type}")
         
         # Get data from previous nodes
         player_data = state.get("player_analysis_data", "")
@@ -482,7 +521,8 @@ def roster_construction_node(state: EfficientRosterBuilderState) -> EfficientRos
             "player_analysis": player_data,
             "cap_analysis": cap_data,
             "chemistry_analysis": chemistry_data,
-            "strategy": roster_req["strategy"]
+            "strategy": roster_req["strategy"],
+            "model_type": model_type
         })
         
         print(f"[SUCCESS] Roster construction completed for {roster_req.get('team', 'Unknown')}")
@@ -709,7 +749,8 @@ async def build_roster(roster_request: RosterRequest):
         
         return RosterResponse(
             result=final_result,
-            agent_type="wnba_team_builder"
+            agent_type="wnba_team_builder",
+            model_used=roster_request.model_type or "openai"
         )
         
     except Exception as e:
