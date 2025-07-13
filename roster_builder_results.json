@@ -1,0 +1,315 @@
+[
+  {
+    "id": 1,
+    "request": {
+      "team": "Phoenix Mercury",
+      "season": "2027",
+      "strategy": "develop",
+      "priorities": [
+        "basketball IQ",
+        "bench depth",
+        "athleticism"
+      ],
+      "cap_target": "conservative approach"
+    },
+    "timestamp": "2025-07-10T20:45:16.822793",
+    "response": {
+      "success": true,
+      "duration": 26.705436944961548,
+      "roster_length": 1271,
+      "result": "**Roster Construction Plan for Phoenix Mercury 2027 Season**\n\n**Priority Signings/Trades:**\n1. **Re-sign Key Veterans**: Prioritize extending contracts for Skylar Diggins-Smith and Brittney Griner to maintain leadership and performance.\n2. **Target a Versatile Forward**: Look for a mid-tier free agent (around $100,000-$150,000) who can play both forward positions, enhancing depth and flexibility.\n\n**Contract Structures:**\n- Offer 1-2 year deals to younger players to maintain flexibility.\n- Consider a team option for the second year on any new signings to manage future cap space.\n\n**Roster Composition:**\n- Maintain 11 players, focusing on 3 guards, 4 forwards, and 2 centers.\n- Ensure at least 2 rookies or young players to develop alongside veterans.\n\n**Timeline for Moves:**\n- Begin negotiations with current players immediately post-season.\n- Target free agency in the first week of the offseason to secure desired players before they sign elsewhere.\n\n**Risk Assessment:**\n- Monitor injury risks with aging veterans; consider signing a reliable backup center.\n- Ensure new signings fit the team culture to maintain chemistry.\n\nThis strategy balances veteran leadership with the infusion of youth, optimizing performance while adhering to salary cap constraints.",
+      "agent_type": "wnba_team_builder",
+      "error": null
+    }
+  },
+  {
+    "id": 2,
+    "request": {
+      "team": "Connecticut Sun",
+      "season": "2026",
+      "strategy": "rebuild",
+      "priorities": []
+    },
+    "timestamp": "2025-07-10T20:45:16.822805",
+    "response": {
+      "success": true,
+      "duration": 68.6026930809021,
+      "roster_length": 1284,
+      "result": "**Connecticut Sun 2026 Rebuild Strategy**\n\n1. **Priority Signings/Trades**: \n   - Target a young, high-upside guard (e.g., a top draft pick or a promising player from a rebuilding team) to complement your versatile forwards.\n   - Consider trading a veteran for future draft picks or young talent to create cap space and build for the future.\n\n2. **Contract Structures**: \n   - Offer shorter contracts (2-3 years) to veterans to maintain flexibility.\n   - Structure rookie contracts with team options to retain control over young players.\n\n3. **Roster Composition**: \n   - Aim for a balanced roster of 11-12 players: 3-4 veterans, 4-5 young players, and 2-3 two-way players.\n   - Focus on versatile forwards and a defensive-minded center to maintain your defensive identity.\n\n4. **Timeline for Moves**: \n   - Begin trades in the offseason to maximize draft capital.\n   - Sign free agents post-draft to fill gaps based on the draft results.\n\n5. **Risk Assessment**: \n   - Monitor the development of young players closely; if they underperform, adjust the strategy to include more veterans.\n   - Ensure that any trades do not compromise team chemistry, maintaining a positive locker room environment.\n\nThis plan positions the Sun for a competitive future while balancing immediate needs.",
+      "agent_type": "wnba_team_builder",
+      "error": null
+    }
+  },
+  {
+    "id": 3,
+    "request": {
+      "team": "Las Vegas Aces",
+      "season": "2027",
+      "strategy": "defensive-minded",
+      "priorities": []
+    },
+    "timestamp": "2025-07-10T20:45:16.822808",
+    "response": {
+      "success": true,
+      "duration": 46.35031175613403,
+      "roster_length": 1184,
+      "result": "**Roster Construction Plan for Las Vegas Aces (2027 Season)**\n\n**Priority Signings/Trades:**\n1. **Defensive Specialist**: Target a perimeter defender (e.g., a player like Diamond DeShields) to enhance wing defense.\n2. **Backup Center**: Acquire a shot-blocking center (e.g., Liz Cambage if available) to bolster interior defense.\n\n**Contract Structures:**\n- Sign key players to 2-3 year deals to maintain flexibility while ensuring core stability.\n- Utilize mid-level exceptions for role players to stay under the cap.\n\n**Roster Composition:**\n- Maintain 11-12 players, focusing on 5 starters and 6-7 versatile role players.\n- Prioritize players with defensive metrics (e.g., steals, blocks, defensive win shares).\n\n**Timeline for Moves:**\n- Begin negotiations in the offseason, targeting trades before the draft.\n- Finalize roster by the start of training camp to ensure chemistry.\n\n**Risk Assessment:**\n- Monitor injury risks with older players; consider depth in the frontcourt.\n- Evaluate potential chemistry issues with new signings; prioritize players with a strong team-first mentality.\n\nThis strategy will enhance defensive capabilities while maintaining offensive efficiency.",
+      "agent_type": "wnba_team_builder",
+      "error": null
+    }
+  },
+  {
+    "id": 4,
+    "request": {
+      "team": "Los Angeles Sparks",
+      "season": "2027",
+      "strategy": "win-now",
+      "priorities": [
+        "scoring",
+        "basketball IQ",
+        "defense"
+      ],
+      "cap_target": "max contracts"
+    },
+    "timestamp": "2025-07-10T20:45:16.822815",
+    "response": {
+      "success": true,
+      "duration": 64.74226474761963,
+      "roster_length": 492,
+      "result": "Roster construction failed: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4o-mini in organization org-Sa4Xla03KzAetBImLuP68QMA on requests per min (RPM): Limit 3, Used 3, Requested 1. Please try again in 20s. Visit https://platform.openai.com/account/rate-limits to learn more. You can increase your rate limit by adding a payment method to your account at https://platform.openai.com/account/billing.', 'type': 'requests', 'param': None, 'code': 'rate_limit_exceeded'}}",
+      "agent_type": "wnba_team_builder",
+      "error": null
+    }
+  },
+  {
+    "id": 5,
+    "request": {
+      "team": "Dallas Wings",
+      "season": "2026",
+      "strategy": "win-now",
+      "priorities": [],
+      "cap_target": "developmental focus"
+    },
+    "timestamp": "2025-07-10T20:45:16.822821",
+    "response": {
+      "success": true,
+      "duration": 47.165793895721436,
+      "roster_length": 1133,
+      "result": "**Roster Construction Plan for Dallas Wings 2026 Season**\n\n**Priority Signings/Trades:**\n1. **Re-sign Arike Ogunbowale**: Max contract to solidify the backcourt.\n2. **Trade for a veteran center**: Target a player like Liz Cambage or a similar impact player to bolster the frontcourt. Offer a combination of draft picks and a young player.\n\n**Contract Structures:**\n- Allocate $1,200,000 to Ogunbowale.\n- Use $307,100 to sign a veteran center (2-year deal, $150,000 per year) and a role player (1-year deal, $157,100).\n\n**Roster Composition:**\n- 3 Guards: Ogunbowale, a veteran guard, and a rookie.\n- 4 Forwards: Satou Sabally, a veteran forward, and two emerging players.\n- 2 Centers: Veteran center and a developing player.\n\n**Timeline for Moves:**\n- Begin trade discussions in early offseason.\n- Finalize signings before the draft to ensure roster stability.\n\n**Risk Assessment:**\n- High risk in trading for a veteran center due to potential chemistry issues.\n- Ensure rookies are integrated gradually to maintain team dynamics.\n\nThis plan positions the Wings for a competitive 2026 season while adhering to salary cap constraints.",
+      "agent_type": "wnba_team_builder",
+      "error": null
+    }
+  },
+  {
+    "id": 6,
+    "request": {
+      "team": "Connecticut Sun",
+      "season": "2025",
+      "strategy": "veteran leadership",
+      "priorities": [
+        "three-point shooting"
+      ]
+    },
+    "timestamp": "2025-07-10T20:45:16.822825",
+    "response": {
+      "success": true,
+      "duration": 86.6930181980133,
+      "roster_length": 1205,
+      "result": "**Connecticut Sun 2025 Roster Construction Plan**\n\n**Priority Signings/Trades:**\n1. **Re-sign Alyssa Thomas and Jonquel Jones**: Prioritize retaining both stars to maintain veteran leadership.\n2. **Target a veteran point guard**: Consider trading for a seasoned playmaker to enhance ball distribution and mentorship for younger players.\n\n**Contract Structures:**\n- Offer Thomas and Jones max contracts to secure their leadership.\n- Structure contracts for new signings with performance incentives to manage cap space effectively.\n\n**Roster Composition:**\n- Maintain a core of 5-6 veterans (Thomas, Jones, and key signings).\n- Fill remaining spots with 3-4 promising rookies or younger players to balance experience and energy.\n\n**Timeline for Moves:**\n- Begin negotiations with current players immediately post-season.\n- Target trades during the draft to maximize value and integrate new players early.\n\n**Risk Assessment:**\n- High risk in relying on aging veterans; ensure depth with younger talent.\n- Monitor salary cap closely to avoid penalties; maintain flexibility for mid-season adjustments.\n\nThis strategy leverages veteran leadership while ensuring a sustainable future through youth integration.",
+      "agent_type": "wnba_team_builder",
+      "error": null
+    }
+  },
+  {
+    "id": 7,
+    "request": {
+      "team": "Indiana Fever",
+      "season": "2025",
+      "strategy": "retool",
+      "priorities": [
+        "interior presence",
+        "scoring"
+      ],
+      "cap_target": "under the cap"
+    },
+    "timestamp": "2025-07-10T20:45:16.822828",
+    "response": {
+      "success": true,
+      "duration": 65.40008306503296,
+      "roster_length": 1236,
+      "result": "**Roster Construction Plan for Indiana Fever 2025 Season**\n\n**Priority Signings/Trades:**\n1. **Sign a veteran point guard** (e.g., Courtney Vandersloot) to mentor young players and stabilize the backcourt.\n2. **Trade for a defensive-minded forward** (e.g., a mid-tier player with a contract under $200K) to complement Boston and Mitchell.\n\n**Contract Structures:**\n- Target 2-3 players on 1-2 year deals under $200K to maintain flexibility.\n- Consider a team option for the second year on any veteran signings.\n\n**Roster Composition:**\n- Core: Aliyah Boston, Kelsey Mitchell, and the new point guard.\n- Role Players: 2-3 young talents (e.g., draft picks or developing players).\n- Depth: 3-4 veterans on short contracts to provide experience and leadership.\n\n**Timeline for Moves:**\n- **Pre-Draft:** Secure trades and signings to maximize draft flexibility.\n- **Post-Draft:** Finalize roster by July, ensuring all contracts are compliant.\n\n**Risk Assessment:**\n- **High Risk:** Relying too heavily on young players without veteran support.\n- **Mitigation:** Balance youth with experienced signings to foster development and competitiveness. \n\nThis strategy positions the Fever for a competitive 2025 season while building for the future.",
+      "agent_type": "wnba_team_builder",
+      "error": null
+    }
+  },
+  {
+    "id": 8,
+    "request": {
+      "team": "Minnesota Lynx",
+      "season": "2027",
+      "strategy": "three-point shooting",
+      "priorities": [
+        "interior presence",
+        "three-point shooting"
+      ],
+      "cap_target": "win-now spending"
+    },
+    "timestamp": "2025-07-10T20:45:16.822832",
+    "response": {
+      "success": true,
+      "duration": 52.464510917663574,
+      "roster_length": 1237,
+      "result": "**Roster Construction Recommendations for Minnesota Lynx 2027:**\n\n1. **Priority Signings/Trades:**\n   - Target a sharpshooter (e.g., a free agent like Kelsey Mitchell) to enhance three-point shooting.\n   - Explore trades for a versatile wing who can shoot (e.g., a player like Diamond DeShields) to complement Collier.\n\n2. **Contract Structures:**\n   - Restructure contracts of mid-tier players (e.g., consider extending players like Kayla McBride for lower annual salaries) to free up cap space.\n   - Utilize short-term deals for rookies to maintain flexibility.\n\n3. **Roster Composition:**\n   - Aim for a 12-player roster: 3 guards, 3 forwards, 2 centers, and 4 versatile wings.\n   - Ensure at least 5 players can shoot above 35% from three.\n\n4. **Timeline for Moves:**\n   - Begin negotiations with free agents immediately post-WNBA draft.\n   - Finalize trades before the mid-season deadline to assess team chemistry.\n\n5. **Risk Assessment:**\n   - High risk in relying on new signings for chemistry; mitigate by retaining core players.\n   - Monitor injury risks with a focus on depth in shooting positions.\n\nBy executing these strategies, the Lynx can enhance their three-point shooting and overall competitiveness for the 2027 season.",
+      "agent_type": "wnba_team_builder",
+      "error": null
+    }
+  },
+  {
+    "id": 9,
+    "request": {
+      "team": "Seattle Storm",
+      "season": "2026",
+      "strategy": "rebuild",
+      "priorities": [
+        "salary cap flexibility",
+        "defense"
+      ],
+      "cap_target": "flexible cap space"
+    },
+    "timestamp": "2025-07-10T20:45:16.822840",
+    "response": {
+      "success": true,
+      "duration": 66.92529106140137,
+      "roster_length": 1110,
+      "result": "**Seattle Storm 2026 Rebuild Strategy**\n\n1. **Priority Signings/Trades**:\n   - Target young, high-upside players via trades (e.g., players under 25 with potential).\n   - Sign a veteran leader on a short-term deal (1-2 years) to mentor young talent.\n\n2. **Contract Structures**:\n   - Utilize team-friendly contracts for rookies and young players (3-4 years).\n   - Consider a mid-level exception for the veteran leader to maintain cap flexibility.\n\n3. **Roster Composition**:\n   - Aim for a mix of 5 veterans and 6-7 young players.\n   - Focus on versatile players who can play multiple positions to enhance depth.\n\n4. **Timeline for Moves**:\n   - Offseason 2025: Execute trades and signings.\n   - Mid-season 2026: Assess performance; consider moving veterans for additional assets.\n\n5. **Risk Assessment**:\n   - High risk in relying on unproven young talent; mitigate by ensuring a strong veteran presence.\n   - Monitor cap space closely to avoid exceeding the salary cap while building for the future.\n\nBy following this plan, the Storm can effectively rebuild while maintaining competitiveness and flexibility.",
+      "agent_type": "wnba_team_builder",
+      "error": null
+    }
+  },
+  {
+    "id": 10,
+    "request": {
+      "team": "Washington Mystics",
+      "season": "2026",
+      "strategy": "inside-out game",
+      "priorities": [
+        "injury prevention",
+        "clutch performance",
+        "basketball IQ"
+      ],
+      "cap_target": "veteran minimums"
+    },
+    "timestamp": "2025-07-10T20:45:16.822844",
+    "response": {
+      "success": true,
+      "duration": 64.65001487731934,
+      "roster_length": 1244,
+      "result": "**Roster Construction Plan for Washington Mystics 2026**\n\n1. **Priority Signings/Trades**:\n   - **Sign a veteran center** (e.g., Liz Cambage) to bolster the frontcourt. Allocate $200,000.\n   - **Trade for a versatile forward** (e.g., a mid-tier player with a $300,000 salary) to enhance inside-out play.\n\n2. **Contract Structures**:\n   - Utilize minimum contracts for role players (3-4 players) to fill out the roster, allocating approximately $1,000,000 across these signings.\n   - Ensure contracts are structured for flexibility, with options for the following season.\n\n3. **Roster Composition**:\n   - **Starters**: Delle Donne, Cambage, and a strong guard (e.g., Natasha Cloud).\n   - **Bench**: 3-4 minimum contract players, a versatile forward from trade, and a young prospect for development.\n\n4. **Timeline for Moves**:\n   - **Pre-Draft**: Finalize trades and signings.\n   - **Post-Draft**: Assess draft picks and adjust roster accordingly.\n\n5. **Risk Assessment**:\n   - Monitor injury risks with Delle Donne and Cambage. Ensure depth in the frontcourt.\n   - Evaluate chemistry with new signings; prioritize players with proven team dynamics.\n\nThis plan maximizes the Mystics' inside-out strategy while adhering to salary cap constraints.",
+      "agent_type": "wnba_team_builder",
+      "error": null
+    }
+  },
+  {
+    "id": 11,
+    "request": {
+      "team": "Atlanta Dream",
+      "season": "2025",
+      "strategy": "three-point shooting",
+      "priorities": [],
+      "cap_target": "flexible cap space"
+    },
+    "timestamp": "2025-07-10T20:45:16.822846",
+    "response": {
+      "success": true,
+      "duration": 46.38048005104065,
+      "roster_length": 1207,
+      "result": "**Roster Construction Plan for Atlanta Dream 2025 Season**\n\n**Priority Signings/Trades:**\n1. **Sign a Proven Shooter:** Target a veteran three-point specialist (e.g., a player like Kelsey Mitchell) to enhance perimeter shooting.\n2. **Trade for a Stretch Forward:** Consider trading a mid-tier player for a stretch four who can shoot (e.g., a player like Alysha Clark).\n\n**Contract Structures:**\n- Restructure contracts of mid-tier players to create additional cap space, aiming for a 2-year deal with a team option for flexibility.\n- Prioritize signing players to minimum contracts to fill out the roster while maintaining cap space.\n\n**Roster Composition:**\n- Aim for 12 players: 5 starters (including Howard and a new shooter), 3 key reserves (including a backup PG), and 4 role players (defensive specialists and shooters).\n\n**Timeline for Moves:**\n- Begin negotiations in early free agency (May 2025) to secure shooters.\n- Complete trades by mid-June to integrate new players before the season starts.\n\n**Risk Assessment:**\n- High risk in relying on new signings for chemistry; ensure new players fit the team culture.\n- Monitor cap space closely to avoid penalties; prioritize flexibility in contracts.",
+      "agent_type": "wnba_team_builder",
+      "error": null
+    }
+  },
+  {
+    "id": 12,
+    "request": {
+      "team": "Las Vegas Aces",
+      "season": "2025",
+      "strategy": "defensive-minded",
+      "priorities": [
+        "perimeter defense",
+        "scoring"
+      ],
+      "cap_target": "over the cap"
+    },
+    "timestamp": "2025-07-10T20:45:16.822849",
+    "response": {
+      "success": true,
+      "duration": 67.08139109611511,
+      "roster_length": 1295,
+      "result": "**Roster Construction Plan for Las Vegas Aces (2025)**\n\n**Priority Signings/Trades:**\n1. **Trade for Defensive Specialists:** Target players like Jonquel Jones or Alyssa Thomas to enhance frontcourt defense. Offer a combination of draft picks and a current player (e.g., Riquna Williams) to balance the cap.\n2. **Sign a Defensive Wing:** Pursue free agents like Diamond DeShields or Ariel Atkins for perimeter defense. \n\n**Contract Structures:**\n- **Restructure Contracts:** Approach A'ja Wilson and Kelsey Plum for potential salary adjustments to create cap space while maintaining their core roles.\n- **Short-term Deals:** Offer 1-2 year contracts to new signings to maintain flexibility.\n\n**Roster Composition:**\n- Maintain core players (Wilson, Plum, Chelsea Gray).\n- Add 2-3 defensive-minded players to the roster.\n- Ensure a mix of veterans and young talent for depth.\n\n**Timeline for Moves:**\n- **Pre-Draft:** Initiate trades and signings to finalize the roster before the draft.\n- **Post-Draft:** Evaluate draft picks and adjust roster accordingly.\n\n**Risk Assessment:**\n- Potential backlash from veterans on contract restructuring.\n- New players may take time to integrate into the existing system. \n\nFocus on building a cohesive defensive unit while maintaining offensive capabilities.",
+      "agent_type": "wnba_team_builder",
+      "error": null
+    }
+  },
+  {
+    "id": 13,
+    "request": {
+      "team": "Dallas Wings",
+      "season": "2027",
+      "strategy": "veteran leadership",
+      "priorities": [],
+      "cap_target": "over the cap"
+    },
+    "timestamp": "2025-07-10T20:45:16.822851",
+    "response": {
+      "success": true,
+      "duration": 67.93776273727417,
+      "roster_length": 1203,
+      "result": "**Priority Signings/Trades:**\n1. **Trade Non-Performing Players:** Identify underperforming contracts (e.g., players with low PER or high usage rates without efficiency) to trade for draft picks or expiring contracts.\n2. **Target Veteran Free Agents:** Look for veterans who can provide leadership and mentorship, ideally on short-term deals (1-2 years) to maintain flexibility.\n\n**Contract Structures:**\n- Offer veterans contracts with incentives based on performance to manage cap space while ensuring competitiveness.\n- Consider restructuring contracts of key players to lower immediate cap hits.\n\n**Roster Composition:**\n- Maintain a core of 3-4 established players, complemented by 3-4 emerging talents.\n- Fill remaining spots with veterans who can contribute both on and off the court.\n\n**Timeline for Moves:**\n- **Offseason (April-June 2027):** Execute trades and signings before the draft.\n- **Mid-Season (July 2027):** Assess team performance; consider additional trades if underperforming.\n\n**Risk Assessment:**\n- Trading key players may disrupt chemistry; ensure any moves align with team goals.\n- Relying on veterans carries injury risk; maintain a strong bench of younger players for depth.",
+      "agent_type": "wnba_team_builder",
+      "error": null
+    }
+  },
+  {
+    "id": 14,
+    "request": {
+      "team": "Dallas Wings",
+      "season": "2026",
+      "strategy": "veteran leadership",
+      "priorities": [
+        "injury prevention",
+        "basketball IQ"
+      ]
+    },
+    "timestamp": "2025-07-10T20:45:16.822854",
+    "response": {
+      "success": true,
+      "duration": 48.2530837059021,
+      "roster_length": 1176,
+      "result": "**Dallas Wings 2026 Roster Construction Plan**\n\n**Priority Signings/Trades:**\n1. **Re-sign Arike Ogunbowale**: Prioritize a multi-year deal to secure leadership and scoring.\n2. **Acquire a veteran forward**: Target a player like Breanna Stewart or a similar caliber via trade to bolster frontcourt experience.\n\n**Contract Structures:**\n- Offer Ogunbowale a 3-year deal with a gradual salary increase to manage cap space.\n- Structure the veteran forward's contract with incentives based on performance to maximize value.\n\n**Roster Composition:**\n- Maintain a core of 5 veterans (Ogunbowale, new forward, and 3 others) and 6-7 young talents.\n- Ensure at least 2 players are versatile to cover multiple positions.\n\n**Timeline for Moves:**\n- Begin negotiations with Ogunbowale immediately post-season.\n- Target trades during the draft to maximize asset value and integrate new players early.\n\n**Risk Assessment:**\n- Monitor salary cap implications closely; avoid overcommitting to aging players.\n- Ensure young talents receive adequate playing time to develop alongside veterans, maintaining team chemistry.\n\nThis strategy balances immediate competitiveness with long-term growth.",
+      "agent_type": "wnba_team_builder",
+      "error": null
+    }
+  },
+  {
+    "id": 15,
+    "request": {
+      "team": "Dallas Wings",
+      "season": "2025",
+      "strategy": "retool",
+      "priorities": [
+        "youth development",
+        "team culture"
+      ],
+      "cap_target": "luxury tax avoidance"
+    },
+    "timestamp": "2025-07-10T20:45:16.822858",
+    "response": {
+      "success": true,
+      "duration": 88.2527928352356,
+      "roster_length": 1190,
+      "result": "**Dallas Wings 2025 Roster Construction Plan**\n\n**Priority Signings/Trades:**\n1. **Restructure Contracts:** Target restructuring for mid-tier players to free up cap space. Consider trading a high-salary player (e.g., a veteran with a $200k+ salary) for a younger, cost-effective option.\n2. **Free Agency:** Pursue a versatile forward (e.g., a player like Azura Stevens) to complement Ogunbowale and Sabally. Allocate $300k for this signing.\n\n**Contract Structures:**\n- Offer 1-2 year deals to free agents to maintain flexibility.\n- Utilize minimum contracts for bench players to meet roster requirements.\n\n**Roster Composition:**\n- Maintain core: Ogunbowale, Sabally, and a new forward.\n- Add 2-3 young players (rookies or low-cost veterans) to develop alongside the core.\n- Ensure 11-12 players on the roster, balancing experience and youth.\n\n**Timeline for Moves:**\n- **Pre-Draft:** Execute trades and signings to finalize roster before the draft.\n- **Post-Draft:** Assess draft picks and adjust roster accordingly.\n\n**Risk Assessment:**\n- High risk in trading key players; ensure replacements can maintain competitiveness.\n- Monitor team chemistry closely post-moves to avoid disruption.",
+      "agent_type": "wnba_team_builder",
+      "error": null
+    }
+  }
+]

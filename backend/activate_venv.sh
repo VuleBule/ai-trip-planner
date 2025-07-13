@@ -1,1 +1,1 @@
-source ~/Documents/AI_PM_venv/AI_PM_new/bin/activate
+source ../ai-eval/bin/activate && python3 main.py
