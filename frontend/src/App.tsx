@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import {
   ThemeProvider,
-  createTheme,
   CssBaseline,
   AppBar,
   Toolbar,
@@ -12,141 +11,24 @@ import {
   Card,
   CardContent,
   Chip,
-  keyframes
+  CircularProgress
 } from '@mui/material';
 import { SportsBasketball, Groups, AutoAwesome, Whatshot, EmojiEvents } from '@mui/icons-material';
-import RosterBuilderForm from './components/RosterBuilderForm';
-import TripResults from './components/TripResults';
 import { RosterRequest, RosterResponse } from './types/roster';
+import { theme } from './styles/theme';
+import { gradientShift, float, pulse, shimmer } from './styles/animations';
+import { performanceMark } from './utils/performance';
 
-// Animated keyframes for stunning effects
-const gradientShift = keyframes`
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-`;
+// Lazy load heavy components for better performance
+const RosterBuilderForm = lazy(() => import('./components/RosterBuilderForm'));
+const TripResults = lazy(() => import('./components/TripResults'));
 
-const float = keyframes`
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33% { transform: translateY(-10px) rotate(1deg); }
-  66% { transform: translateY(5px) rotate(-1deg); }
-`;
-
-const pulse = keyframes`
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-`;
-
-const shimmer = keyframes`
-  0% { background-position: -200px 0; }
-  100% { background-position: calc(200px + 100%) 0; }
-`;
-
-const theme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: {
-      main: '#FF6B35', // Basketball orange
-      light: '#FF9A73',
-      dark: '#E55A2B',
-    },
-    secondary: {
-      main: '#FF1B8D', // Hot pink
-      light: '#FF5FA8',
-      dark: '#E0186E',
-    },
-    background: {
-      default: '#0F0620', // Deep purple-black
-      paper: 'rgba(255, 255, 255, 0.05)',
-    },
-    text: {
-      primary: '#FFFFFF',
-      secondary: '#E0E0E0',
-    },
-    info: {
-      main: '#00E5FF', // Electric cyan
-    },
-    warning: {
-      main: '#FFD700', // Gold
-    },
-  },
-  typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-    h1: {
-      fontWeight: 900,
-      background: 'linear-gradient(135deg, #FF6B35 0%, #FF1B8D 50%, #00E5FF 100%)',
-      backgroundClip: 'text',
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      textShadow: '0 0 30px rgba(255, 107, 53, 0.5)',
-    },
-    h3: {
-      fontWeight: 800,
-      color: '#FFFFFF',
-      textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)',
-    },
-    h5: {
-      fontWeight: 700,
-      color: '#FFFFFF',
-    },
-    h6: {
-      fontWeight: 600,
-      color: '#FFFFFF',
-    },
-  },
-  components: {
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          background: 'rgba(255, 255, 255, 0.08)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          borderRadius: '20px',
-          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)',
-          transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
-        },
-      },
-    },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          background: 'rgba(255, 255, 255, 0.05)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          borderRadius: '20px',
-        },
-      },
-    },
-    MuiAppBar: {
-      styleOverrides: {
-        root: {
-          background: 'rgba(15, 6, 32, 0.9)',
-          backdropFilter: 'blur(20px)',
-          border: 'none',
-          boxShadow: '0 10px 30px rgba(255, 107, 53, 0.2)',
-        },
-      },
-    },
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: '15px',
-          textTransform: 'none',
-          fontWeight: 700,
-          fontSize: '1.1rem',
-          padding: '12px 30px',
-          background: 'linear-gradient(135deg, #FF6B35 0%, #FF1B8D 100%)',
-          boxShadow: '0 10px 30px rgba(255, 107, 53, 0.4)',
-          transition: 'all 0.3s ease',
-          '&:hover': {
-            transform: 'translateY(-3px)',
-            boxShadow: '0 15px 40px rgba(255, 107, 53, 0.6)',
-          },
-        },
-      },
-    },
-  },
-});
+// Loading component for lazy-loaded components
+const LoadingFallback = () => (
+  <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+    <CircularProgress sx={{ color: 'primary.main' }} />
+  </Box>
+);
 
 function App() {
   const [rosterResponse, setRosterResponse] = useState<RosterResponse | null>(null);
@@ -154,6 +36,7 @@ function App() {
   const [error, setError] = useState<string | null>(null);
 
   const handleBuildRoster = async (rosterRequest: RosterRequest) => {
+    performanceMark.start('build-roster');
     setLoading(true);
     setError(null);
     setRosterResponse(null);
@@ -178,6 +61,7 @@ function App() {
       console.error('Error building roster:', err);
     } finally {
       setLoading(false);
+      performanceMark.end('build-roster');
     }
   };
 
@@ -712,7 +596,9 @@ function App() {
                 <Typography variant="h5" gutterBottom>
                   Build Your Roster
                 </Typography>
-                <RosterBuilderForm onSubmit={handleBuildRoster} loading={loading} />
+                <Suspense fallback={<LoadingFallback />}>
+                  <RosterBuilderForm onSubmit={handleBuildRoster} loading={loading} />
+                </Suspense>
               </Paper>
             </Box>
 
@@ -738,7 +624,9 @@ function App() {
                       variant="outlined"
                     />
                   </Box>
-                  <TripResults response={rosterResponse} onNewTrip={handleNewRoster} />
+                  <Suspense fallback={<LoadingFallback />}>
+                    <TripResults response={rosterResponse} onNewTrip={handleNewRoster} />
+                  </Suspense>
                 </Paper>
               )}
 

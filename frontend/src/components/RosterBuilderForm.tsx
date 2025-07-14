@@ -12,7 +12,6 @@ import {
   SelectChangeEvent,
   Checkbox,
   ListItemText,
-  keyframes,
   Paper,
   CircularProgress
 } from '@mui/material';
@@ -26,22 +25,7 @@ import {
   CAP_TARGETS
 } from '../types/roster';
 import { ModelSelector } from './ModelSelector';
-
-// Stunning animations for the form
-const glow = keyframes`
-  0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 53, 0.5); }
-  50% { box-shadow: 0 0 30px rgba(255, 27, 141, 0.8); }
-`;
-
-const slideIn = keyframes`
-  from { transform: translateY(30px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-`;
-
-const sparkle = keyframes`
-  0%, 100% { transform: scale(1) rotate(0deg); }
-  50% { transform: scale(1.1) rotate(180deg); }
-`;
+import { glow, slideIn, sparkle } from '../styles/animations';
 
 interface RosterBuilderFormProps {
   onSubmit: (rosterRequest: RosterRequest) => void;

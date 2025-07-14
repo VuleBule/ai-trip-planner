@@ -1,5 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 import os
@@ -7,6 +8,10 @@ import uvicorn
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 import asyncio
+import time
+from functools import lru_cache
+import hashlib
+import json
 
 # Load environment variables from .env file
 load_dotenv()
@@ -100,6 +105,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add GZip compression middleware
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+# Cache for API responses
+response_cache = {}
+CACHE_MAX_AGE = 300  # 5 minutes
+
+def get_cache_key(request_data: dict) -> str:
+    """Generate a cache key from request data"""
+    return hashlib.md5(json.dumps(request_data, sort_keys=True).encode()).hexdigest()
 
 # Pydantic models for WNBA Team Building
 class RosterRequest(BaseModel):
@@ -715,8 +731,19 @@ async def root():
 
 
 @app.post("/build-roster", response_model=RosterResponse)
-async def build_roster(roster_request: RosterRequest):
+async def build_roster(roster_request: RosterRequest, response: Response):
     """Build a WNBA roster using optimized parallel LangGraph workflow"""
+    
+    # Check cache first
+    cache_key = get_cache_key(roster_request.model_dump())
+    if cache_key in response_cache:
+        cached_data, timestamp = response_cache[cache_key]
+        if time.time() - timestamp < CACHE_MAX_AGE:
+            # Add cache headers
+            response.headers["X-Cache"] = "HIT"
+            response.headers["Cache-Control"] = f"public, max-age={CACHE_MAX_AGE}"
+            return cached_data
+    
     try:
         # Create the efficient WNBA graph
         graph = create_efficient_roster_building_graph()
@@ -747,11 +774,20 @@ async def build_roster(roster_request: RosterRequest):
         # Extract the final result
         final_result = result.get("final_result", "Roster building analysis completed successfully.")
         
-        return RosterResponse(
+        roster_response = RosterResponse(
             result=final_result,
             agent_type="wnba_team_builder",
             model_used=roster_request.model_type or "openai"
         )
+        
+        # Cache the response
+        response_cache[cache_key] = (roster_response, time.time())
+        
+        # Add cache headers
+        response.headers["X-Cache"] = "MISS"
+        response.headers["Cache-Control"] = f"public, max-age={CACHE_MAX_AGE}"
+        
+        return roster_response
         
     except Exception as e:
         print(f"[ERROR] Error in WNBA roster building: {str(e)}")
