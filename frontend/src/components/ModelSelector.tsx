@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { 
   FormControl, 
   FormLabel, 
@@ -18,7 +18,7 @@ interface ModelSelectorProps {
   isLoading?: boolean;
 }
 
-export const ModelSelector: React.FC<ModelSelectorProps> = ({
+const ModelSelector: React.FC<ModelSelectorProps> = ({
   selectedModel,
   onModelChange,
   modelStatus,
@@ -89,4 +89,6 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
       )}
     </Box>
   );
-}; 
+};
+
+export default ModelSelector; 

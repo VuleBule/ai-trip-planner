@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, Suspense } from 'react';
 import {
   ThemeProvider,
   createTheme,
@@ -12,35 +12,12 @@ import {
   Card,
   CardContent,
   Chip,
-  keyframes
+  CircularProgress
 } from '@mui/material';
 import { SportsBasketball, Groups, AutoAwesome, Whatshot, EmojiEvents } from '@mui/icons-material';
-import RosterBuilderForm from './components/RosterBuilderForm';
-import TripResults from './components/TripResults';
+import { RosterBuilderForm, TripResults } from './components/LazyComponents';
 import { RosterRequest, RosterResponse } from './types/roster';
-
-// Animated keyframes for stunning effects
-const gradientShift = keyframes`
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-`;
-
-const float = keyframes`
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33% { transform: translateY(-10px) rotate(1deg); }
-  66% { transform: translateY(5px) rotate(-1deg); }
-`;
-
-const pulse = keyframes`
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-`;
-
-const shimmer = keyframes`
-  0% { background-position: -200px 0; }
-  100% { background-position: calc(200px + 100%) 0; }
-`;
+import './animations.css';
 
 const theme = createTheme({
   palette: {
@@ -48,99 +25,78 @@ const theme = createTheme({
     primary: {
       main: '#FF6B35', // Basketball orange
       light: '#FF9A73',
-      dark: '#E55A2B',
+      dark: '#E5471F',
     },
     secondary: {
       main: '#FF1B8D', // Hot pink
-      light: '#FF5FA8',
-      dark: '#E0186E',
+      light: '#FF69B4',
+      dark: '#CC0066',
     },
     background: {
-      default: '#0F0620', // Deep purple-black
+      default: '#0A0B1E',
       paper: 'rgba(255, 255, 255, 0.05)',
     },
     text: {
       primary: '#FFFFFF',
-      secondary: '#E0E0E0',
-    },
-    info: {
-      main: '#00E5FF', // Electric cyan
-    },
-    warning: {
-      main: '#FFD700', // Gold
+      secondary: '#B0B0B0',
     },
   },
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
-      fontWeight: 900,
-      background: 'linear-gradient(135deg, #FF6B35 0%, #FF1B8D 50%, #00E5FF 100%)',
+      fontWeight: 800,
+      fontSize: '3rem',
+      background: 'linear-gradient(135deg, #FF6B35 0%, #FF1B8D 50%, #8A2BE2 100%)',
       backgroundClip: 'text',
       WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      textShadow: '0 0 30px rgba(255, 107, 53, 0.5)',
+      color: 'transparent',
+    },
+    h2: {
+      fontWeight: 700,
+      fontSize: '2rem',
     },
     h3: {
-      fontWeight: 800,
-      color: '#FFFFFF',
-      textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)',
-    },
-    h5: {
-      fontWeight: 700,
-      color: '#FFFFFF',
-    },
-    h6: {
       fontWeight: 600,
-      color: '#FFFFFF',
+      fontSize: '1.5rem',
     },
   },
   components: {
-    MuiCard: {
+    MuiButton: {
       styleOverrides: {
         root: {
-          background: 'rgba(255, 255, 255, 0.08)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          borderRadius: '20px',
-          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)',
-          transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
+          borderRadius: 12,
+          textTransform: 'none',
+          fontWeight: 600,
+          padding: '12px 24px',
+          boxShadow: 'none',
+          '&:hover': {
+            boxShadow: '0 8px 25px rgba(255, 107, 53, 0.3)',
+            transform: 'translateY(-2px)',
+          },
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         },
       },
     },
     MuiPaper: {
       styleOverrides: {
         root: {
-          background: 'rgba(255, 255, 255, 0.05)',
-          backdropFilter: 'blur(20px)',
+          borderRadius: 16,
           border: '1px solid rgba(255, 255, 255, 0.1)',
-          borderRadius: '20px',
-        },
-      },
-    },
-    MuiAppBar: {
-      styleOverrides: {
-        root: {
-          background: 'rgba(15, 6, 32, 0.9)',
           backdropFilter: 'blur(20px)',
-          border: 'none',
-          boxShadow: '0 10px 30px rgba(255, 107, 53, 0.2)',
         },
       },
     },
-    MuiButton: {
+    MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: '15px',
-          textTransform: 'none',
-          fontWeight: 700,
-          fontSize: '1.1rem',
-          padding: '12px 30px',
-          background: 'linear-gradient(135deg, #FF6B35 0%, #FF1B8D 100%)',
-          boxShadow: '0 10px 30px rgba(255, 107, 53, 0.4)',
+          borderRadius: 20,
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          background: 'rgba(255, 255, 255, 0.03)',
+          backdropFilter: 'blur(20px)',
           transition: 'all 0.3s ease',
           '&:hover': {
-            transform: 'translateY(-3px)',
-            boxShadow: '0 15px 40px rgba(255, 107, 53, 0.6)',
+            transform: 'translateY(-4px)',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
           },
         },
       },
@@ -148,612 +104,186 @@ const theme = createTheme({
   },
 });
 
+// Loading component for Suspense fallback
+const LoadingFallback: React.FC<{ message?: string }> = ({ message = "Loading..." }) => (
+  <Box 
+    display="flex" 
+    flexDirection="column" 
+    alignItems="center" 
+    justifyContent="center" 
+    minHeight="200px"
+    gap={2}
+  >
+    <CircularProgress size={48} thickness={2} />
+    <Typography variant="body2" color="text.secondary">
+      {message}
+    </Typography>
+  </Box>
+);
+
+// Header component
+const AppHeader: React.FC = () => (
+  <AppBar 
+    position="static" 
+    sx={{ 
+      background: 'rgba(10, 11, 30, 0.8)',
+      backdropFilter: 'blur(20px)',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+    }}
+  >
+    <Toolbar sx={{ justifyContent: 'center' }}>
+      <Box display="flex" alignItems="center" gap={2} className="float">
+        <SportsBasketball sx={{ fontSize: 40, color: 'primary.main' }} />
+        <Typography variant="h4" component="h1" sx={{ fontWeight: 800 }}>
+          WNBA Team Builder
+        </Typography>
+        <EmojiEvents sx={{ fontSize: 40, color: 'secondary.main', animation: 'sparkle 1.5s ease-in-out infinite' }} />
+      </Box>
+    </Toolbar>
+  </AppBar>
+);
+
+// Feature cards component
+const FeatureCards: React.FC = () => (
+  <Box display="flex" gap={3} mb={4} flexWrap="wrap" justifyContent="center">
+    {[
+      { icon: <Groups />, title: "Team Chemistry", description: "AI-powered roster analysis" },
+      { icon: <AutoAwesome />, title: "Smart Strategy", description: "Optimized game plans" },
+      { icon: <Whatshot />, title: "Performance", description: "Data-driven insights" }
+    ].map((feature, index) => (
+      <Card 
+        key={index}
+        sx={{ 
+          minWidth: 200, 
+          maxWidth: 300,
+          animation: `slideIn 0.5s ease-out ${index * 0.1}s both`
+        }}
+      >
+        <CardContent sx={{ textAlign: 'center', p: 3 }}>
+          <Box sx={{ color: 'primary.main', mb: 2, fontSize: 48 }}>
+            {feature.icon}
+          </Box>
+          <Typography variant="h6" gutterBottom>
+            {feature.title}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {feature.description}
+          </Typography>
+        </CardContent>
+      </Card>
+    ))}
+  </Box>
+);
+
 function App() {
-  const [rosterResponse, setRosterResponse] = useState<RosterResponse | null>(null);
+  const [rosterResult, setRosterResult] = useState<RosterResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleBuildRoster = async (rosterRequest: RosterRequest) => {
     setLoading(true);
-    setError(null);
-    setRosterResponse(null);
-
+    setRosterResult(null);
+    
     try {
       const response = await fetch('http://localhost:8000/build-roster', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(rosterRequest),
       });
-
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      const data: RosterResponse = await response.json();
-      setRosterResponse(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      console.error('Error building roster:', err);
+      
+      const result: RosterResponse = await response.json();
+      setRosterResult(result);
+    } catch (error) {
+      console.error('Error building roster:', error);
+      setRosterResult({
+        result: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
+        agent_type: 'error'
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleNewRoster = () => {
-    setRosterResponse(null);
-    setError(null);
+    setRosterResult(null);
   };
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box 
-        sx={{ 
+      <Box
+        sx={{
           minHeight: '100vh',
-          background: {
-            default: 'linear-gradient(135deg, #0F0620 0%, #1A0B3D 25%, #2D1B69 50%, #FF1B8D 100%)',
-          },
-          position: 'relative',
-          overflow: 'hidden',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: {
-              default: `
-                radial-gradient(circle at 20% 20%, rgba(255, 107, 53, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 80% 80%, rgba(255, 27, 141, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.1) 0%, transparent 50%)
-              `,
-            },
-            animation: `${gradientShift} 8s ease-in-out infinite`,
-            zIndex: 0,
-          },
-          '&::after': {
-            content: '""',
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            background: {
-              default: `
-                repeating-linear-gradient(
-                  90deg,
-                  transparent,
-                  transparent 98px,
-                  rgba(255, 255, 255, 0.03) 100px
-                ),
-                repeating-linear-gradient(
-                  0deg,
-                  transparent,
-                  transparent 98px,
-                  rgba(255, 255, 255, 0.03) 100px
-                )
-              `,
-            },
-            zIndex: 0,
-          }
+          background: 'linear-gradient(135deg, #0A0B1E 0%, #1A1B3A 50%, #2A2B5A 100%)',
+          backgroundSize: '400% 400%',
         }}
+        className="gradient-shift"
       >
-        {/* Floating Basketball Icons */}
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '10%',
-            right: '10%',
-            zIndex: 1,
-            animation: `${float} 6s ease-in-out infinite`,
-            opacity: 0.6,
-          }}
-        >
-          <SportsBasketball sx={{ fontSize: '4rem', color: '#FF6B35' }} />
-        </Box>
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: '20%',
-            left: '5%',
-            zIndex: 1,
-            animation: `${float} 8s ease-in-out infinite`,
-            animationDelay: '2s',
-            opacity: 0.4,
-          }}
-        >
-          <EmojiEvents sx={{ fontSize: '3rem', color: '#FFD700' }} />
-        </Box>
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '60%',
-            right: '20%',
-            zIndex: 1,
-            animation: `${float} 7s ease-in-out infinite`,
-            animationDelay: '4s',
-            opacity: 0.5,
-          }}
-        >
-          <Whatshot sx={{ fontSize: '2.5rem', color: '#FF1B8D' }} />
-        </Box>
-
-        {/* Stunning Header */}
-        <AppBar 
-          position="static" 
-          elevation={0}
-          sx={{
-            background: 'rgba(15, 6, 32, 0.95)',
-            backdropFilter: 'blur(30px)',
-            borderBottom: '2px solid rgba(255, 107, 53, 0.3)',
-            position: 'relative',
-            zIndex: 10,
-          }}
-        >
-          <Toolbar sx={{ py: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', animation: `${pulse} 3s ease-in-out infinite` }}>
-              <Groups sx={{ mr: 2, fontSize: '2rem', color: '#FF6B35' }} />
-              <Typography 
-                variant="h4" 
-                component="div" 
-                sx={{ 
-                  flexGrow: 1,
-                  fontWeight: 900,
-                  background: 'linear-gradient(135deg, #FF6B35 0%, #FF1B8D 50%, #00E5FF 100%)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  textShadow: '0 0 30px rgba(255, 107, 53, 0.8)',
-                  letterSpacing: '2px',
-                }}
-              >
-                WNBA TEAM BUILDER
-              </Typography>
-            </Box>
-            <Box sx={{ animation: `${float} 4s ease-in-out infinite` }}>
-              <SportsBasketball sx={{ fontSize: '2.5rem', color: '#FF1B8D' }} />
-            </Box>
-          </Toolbar>
-        </AppBar>
-
-        <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 5, py: 6 }}>
-          {/* Spectacular Hero Section */}
-          <Box
-            sx={{
-              textAlign: 'center',
-              mb: 8,
-              position: 'relative',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: '-50%',
-                left: '-50%',
-                width: '200%',
-                height: '200%',
-                background: {
-                  default: 'conic-gradient(from 0deg, #FF6B35, #FF1B8D, #00E5FF, #FFD700, #FF6B35)',
-                },
-                animation: `${gradientShift} 10s linear infinite`,
-                opacity: 0.1,
-                borderRadius: '50%',
-                zIndex: -1,
-              }
-            }}
-          >
-            <Typography 
-              variant="h1" 
-              component="h1" 
-              sx={{ 
-                fontSize: { xs: '3rem', md: '5rem', lg: '6rem' },
-                fontWeight: 900,
-                mb: 3,
-                background: 'linear-gradient(135deg, #FF6B35 0%, #FF1B8D 30%, #00E5FF 60%, #FFD700 100%)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                textShadow: '0 0 60px rgba(255, 107, 53, 0.8)',
-                letterSpacing: '3px',
-                animation: `${shimmer} 3s ease-in-out infinite`,
-                position: 'relative',
-                '&::after': {
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'linear-gradient(135deg, transparent 40%, rgba(255, 255, 255, 0.1) 50%, transparent 60%)',
-                  animation: `${shimmer} 2s ease-in-out infinite`,
-                }
-              }}
-            >
-              BUILD YOUR
-            </Typography>
-            <Typography 
-              variant="h1" 
-              component="h1" 
-              sx={{ 
-                fontSize: { xs: '3.5rem', md: '6rem', lg: '7rem' },
-                fontWeight: 900,
-                mb: 4,
-                background: 'linear-gradient(135deg, #FFD700 0%, #FF1B8D 50%, #FF6B35 100%)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                textShadow: '0 0 80px rgba(255, 27, 141, 0.9)',
-                letterSpacing: '4px',
-                animation: `${pulse} 4s ease-in-out infinite`,
-              }}
-            >
-              DREAM TEAM
-            </Typography>
-            <Typography 
-              variant="h4" 
-              sx={{ 
-                color: '#E0E0E0',
-                maxWidth: '800px',
-                mx: 'auto',
-                mb: 6,
-                fontSize: { xs: '1.2rem', md: '1.8rem' },
-                fontWeight: 500,
-                lineHeight: 1.4,
-                opacity: 0.9,
-                textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)',
-              }}
-            >
-              🏀 AI-Powered WNBA Roster Building • Salary Cap Analysis • Team Chemistry Optimization
-            </Typography>
-          </Box>
-
-          {/* Features Cards */}
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 4 }}>
-            <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
-              <Card 
-                sx={{ 
-                  height: '100%', 
-                  textAlign: 'center', 
-                  p: 2,
-                  transition: 'all 0.3s ease-in-out',
-                  '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: '0 8px 25px rgba(144, 202, 249, 0.15)',
-                    borderColor: 'primary.main',
-                  }
-                }}
-              >
-                <CardContent>
-                  <Typography variant="h6" gutterBottom sx={{ color: 'primary.main' }}>
-                    🏀 Player Analysis
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Analyze player performance, fit, and contract value assessments
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Box>
-            <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
-              <Card 
-                sx={{ 
-                  height: '100%', 
-                  textAlign: 'center', 
-                  p: 2,
-                  transition: 'all 0.3s ease-in-out',
-                  '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: '0 8px 25px rgba(76, 175, 80, 0.15)',
-                    borderColor: 'success.main',
-                  }
-                }}
-              >
-                <CardContent>
-                  <Typography variant="h6" gutterBottom sx={{ color: 'success.main' }}>
-                    📋 Roster Construction
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Build complete rosters with optimal player combinations
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Box>
-          </Box>
-
-          {/* Spectacular Features Grid */}
-          <Box sx={{ mb: 8, position: 'relative' }}>
-            <Typography 
-              variant="h3" 
-              component="h2" 
-              align="center" 
-              sx={{ 
-                mb: 6,
-                fontWeight: 800,
-                background: 'linear-gradient(135deg, #FF6B35 0%, #FF1B8D 100%)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                textShadow: '0 0 30px rgba(255, 107, 53, 0.6)',
-                letterSpacing: '2px',
-              }}
-            >
-              ✨ ELITE FEATURES ✨
-            </Typography>
-            <Box 
-              sx={{ 
-                display: 'grid', 
-                gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }, 
-                gap: 4,
-                perspective: '1000px',
-                mb: 8,
-              }}
-            >
-              {/* AI Analysis Card */}
-              <Card 
-                sx={{ 
-                  p: 4, 
-                  textAlign: 'center', 
-                  height: '300px',
-                  background: 'rgba(255, 107, 53, 0.1)',
-                  backdropFilter: 'blur(30px)',
-                  border: '2px solid rgba(255, 107, 53, 0.3)',
-                  borderRadius: '25px',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  transform: 'rotateY(0deg)',
-                  transition: 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)',
-                  '&:hover': {
-                    transform: 'translateY(-20px) rotateY(5deg) scale(1.05)',
-                    boxShadow: '0 30px 60px rgba(255, 107, 53, 0.4)',
-                    border: '2px solid rgba(255, 107, 53, 0.6)',
-                  },
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(255, 27, 141, 0.1) 100%)',
-                    borderRadius: '25px',
-                    opacity: 0,
-                    transition: 'opacity 0.3s ease',
-                  },
-                  '&:hover::before': {
-                    opacity: 1,
-                  }
-                }}
-              >
-                <Box sx={{ position: 'relative', zIndex: 2 }}>
-                  <AutoAwesome 
-                    sx={{ 
-                      fontSize: '4rem', 
-                      color: '#FF6B35', 
-                      mb: 2,
-                      animation: `${pulse} 2s ease-in-out infinite`,
-                      filter: 'drop-shadow(0 0 20px rgba(255, 107, 53, 0.6))',
-                    }} 
-                  />
-                  <Typography 
-                    variant="h5" 
-                    component="h3" 
-                    gutterBottom
-                    sx={{ 
-                      fontWeight: 700,
-                      color: '#FFFFFF',
-                      textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)',
-                    }}
-                  >
-                    🤖 AI GENIUS
-                  </Typography>
-                  <Typography 
-                    variant="body1" 
-                    sx={{ 
-                      color: '#E0E0E0',
-                      fontSize: '1.1rem',
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    Advanced AI algorithms analyze player combinations, predict team chemistry, and optimize lineup configurations for maximum impact
-                  </Typography>
-                </Box>
-              </Card>
-
-              {/* Salary Cap Card */}
-              <Card 
-                sx={{ 
-                  p: 4, 
-                  textAlign: 'center', 
-                  height: '300px',
-                  background: 'rgba(255, 27, 141, 0.1)',
-                  backdropFilter: 'blur(30px)',
-                  border: '2px solid rgba(255, 27, 141, 0.3)',
-                  borderRadius: '25px',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  transform: 'rotateY(0deg)',
-                  transition: 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)',
-                  '&:hover': {
-                    transform: 'translateY(-20px) rotateY(-5deg) scale(1.05)',
-                    boxShadow: '0 30px 60px rgba(255, 27, 141, 0.4)',
-                    border: '2px solid rgba(255, 27, 141, 0.6)',
-                  },
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'linear-gradient(135deg, rgba(255, 27, 141, 0.1) 0%, rgba(255, 215, 0, 0.1) 100%)',
-                    borderRadius: '25px',
-                    opacity: 0,
-                    transition: 'opacity 0.3s ease',
-                  },
-                  '&:hover::before': {
-                    opacity: 1,
-                  }
-                }}
-              >
-                <Box sx={{ position: 'relative', zIndex: 2 }}>
-                  <Typography 
-                    variant="h2" 
-                    component="div" 
-                    sx={{ 
-                      color: '#FFD700', 
-                      mb: 2,
-                      fontWeight: 900,
-                      textShadow: '0 0 30px rgba(255, 215, 0, 0.8)',
-                      animation: `${shimmer} 3s ease-in-out infinite`,
-                    }}
-                  >
-                    $
-                  </Typography>
-                  <Typography 
-                    variant="h5" 
-                    component="h3" 
-                    gutterBottom
-                    sx={{ 
-                      fontWeight: 700,
-                      color: '#FFFFFF',
-                      textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)',
-                    }}
-                  >
-                    💰 SALARY MASTER
-                  </Typography>
-                  <Typography 
-                    variant="body1" 
-                    sx={{ 
-                      color: '#E0E0E0',
-                      fontSize: '1.1rem',
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    Stay within WNBA CBA constraints while maximizing team value, competitive balance, and championship potential
-                  </Typography>
-                </Box>
-              </Card>
-
-              {/* Team Chemistry Card */}
-              <Card 
-                sx={{ 
-                  p: 4, 
-                  textAlign: 'center', 
-                  height: '300px',
-                  background: 'rgba(0, 229, 255, 0.1)',
-                  backdropFilter: 'blur(30px)',
-                  border: '2px solid rgba(0, 229, 255, 0.3)',
-                  borderRadius: '25px',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  transform: 'rotateY(0deg)',
-                  transition: 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)',
-                  '&:hover': {
-                    transform: 'translateY(-20px) rotateY(5deg) scale(1.05)',
-                    boxShadow: '0 30px 60px rgba(0, 229, 255, 0.4)',
-                    border: '2px solid rgba(0, 229, 255, 0.6)',
-                  },
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%)',
-                    borderRadius: '25px',
-                    opacity: 0,
-                    transition: 'opacity 0.3s ease',
-                  },
-                  '&:hover::before': {
-                    opacity: 1,
-                  }
-                }}
-              >
-                <Box sx={{ position: 'relative', zIndex: 2 }}>
-                  <Groups 
-                    sx={{ 
-                      fontSize: '4rem', 
-                      color: '#00E5FF', 
-                      mb: 2,
-                      animation: `${float} 3s ease-in-out infinite`,
-                      filter: 'drop-shadow(0 0 20px rgba(0, 229, 255, 0.6))',
-                    }} 
-                  />
-                  <Typography 
-                    variant="h5" 
-                    component="h3" 
-                    gutterBottom
-                    sx={{ 
-                      fontWeight: 700,
-                      color: '#FFFFFF',
-                      textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)',
-                    }}
-                  >
-                    🔥 TEAM SYNERGY
-                  </Typography>
-                  <Typography 
-                    variant="body1" 
-                    sx={{ 
-                      color: '#E0E0E0',
-                      fontSize: '1.1rem',
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    Evaluate player compatibility, leadership dynamics, and on-court chemistry for championship-winning combinations
-                  </Typography>
-                </Box>
-              </Card>
-            </Box>
-          </Box>
-
-          {/* Main Content */}
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 6, position: 'relative', zIndex: 5 }}>
-            <Box sx={{ flex: '0 0 auto', width: { xs: '100%', lg: '500px' } }}>
-              <Paper sx={{ p: 3 }}>
-                <Typography variant="h5" gutterBottom>
-                  Build Your Roster
+        <AppHeader />
+        
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+          {!rosterResult ? (
+            <>
+              <Box textAlign="center" mb={6}>
+                <Typography 
+                  variant="h1" 
+                  gutterBottom 
+                  sx={{ 
+                    mb: 2,
+                    animation: 'pulse 2s ease-in-out infinite'
+                  }}
+                >
+                  Build Your Dream Team
                 </Typography>
-                <RosterBuilderForm onSubmit={handleBuildRoster} loading={loading} />
-              </Paper>
-            </Box>
-
-            <Box sx={{ flex: 1 }}>
-              {error && (
-                <Paper sx={{ p: 3, mb: 2, bgcolor: 'error.light', color: 'error.contrastText' }}>
-                  <Typography variant="h6" gutterBottom>
-                    Error
-                  </Typography>
-                  <Typography>{error}</Typography>
-                </Paper>
-              )}
-
-              {rosterResponse && (
-                <Paper sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h5" gutterBottom>
-                      Your Roster Analysis
-                    </Typography>
-                    <Chip
-                      label={rosterResponse.agent_type}
-                      color="primary"
-                      variant="outlined"
+                <Typography variant="h5" color="text.secondary" paragraph>
+                  Create the perfect WNBA roster with AI-powered analysis and strategic planning
+                </Typography>
+                <Box display="flex" gap={1} justifyContent="center" flexWrap="wrap" mt={3}>
+                  {['AI-Powered', 'Strategic', 'Championship Ready'].map((tag) => (
+                    <Chip 
+                      key={tag}
+                      label={tag} 
+                      sx={{ 
+                        background: 'linear-gradient(45deg, #FF6B35 30%, #FF1B8D 90%)',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        '&:hover': { transform: 'scale(1.05)' },
+                        transition: 'transform 0.2s ease'
+                      }} 
                     />
-                  </Box>
-                  <TripResults response={rosterResponse} onNewTrip={handleNewRoster} />
-                </Paper>
-              )}
+                  ))}
+                </Box>
+              </Box>
 
-              {!rosterResponse && !loading && !error && (
-                <Paper sx={{ p: 6, textAlign: 'center', bgcolor: 'grey.50' }}>
-                  <Typography variant="h6" color="text.secondary">
-                    Fill out the form to get your personalized roster analysis
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                    Our AI agents will analyze WNBA rules and create the optimal team strategy
-                  </Typography>
-                </Paper>
-              )}
-            </Box>
-          </Box>
+              <FeatureCards />
+
+              <Paper 
+                sx={{ 
+                  p: 4, 
+                  mb: 4,
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  animation: 'slideIn 0.6s ease-out'
+                }}
+                className="glow"
+              >
+                <Suspense fallback={<LoadingFallback message="Loading roster builder..." />}>
+                  <RosterBuilderForm onSubmit={handleBuildRoster} loading={loading} />
+                </Suspense>
+              </Paper>
+            </>
+          ) : (
+                         <Paper sx={{ p: 4, animation: 'slideIn 0.6s ease-out' }}>
+               <Suspense fallback={<LoadingFallback message="Loading results..." />}>
+                 <TripResults 
+                   response={{ result: rosterResult.result }}
+                   onNewTrip={handleNewRoster}
+                 />
+               </Suspense>
+             </Paper>
+          )}
         </Container>
       </Box>
     </ThemeProvider>
