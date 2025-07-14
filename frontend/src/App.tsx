@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import {
   ThemeProvider,
   createTheme,
@@ -12,51 +12,32 @@ import {
   Card,
   CardContent,
   Chip,
-  keyframes
+  CircularProgress
 } from '@mui/material';
-import { SportsBasketball, Groups, AutoAwesome, Whatshot, EmojiEvents } from '@mui/icons-material';
-import RosterBuilderForm from './components/RosterBuilderForm';
-import TripResults from './components/TripResults';
+import { SportsBasketball, Groups, AutoAwesome } from '@mui/icons-material';
 import { RosterRequest, RosterResponse } from './types/roster';
 
-// Animated keyframes for stunning effects
-const gradientShift = keyframes`
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-`;
+// Lazy load components for better performance
+const RosterBuilderForm = lazy(() => import('./components/RosterBuilderForm'));
+const TripResults = lazy(() => import('./components/TripResults'));
 
-const float = keyframes`
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33% { transform: translateY(-10px) rotate(1deg); }
-  66% { transform: translateY(5px) rotate(-1deg); }
-`;
-
-const pulse = keyframes`
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-`;
-
-const shimmer = keyframes`
-  0% { background-position: -200px 0; }
-  100% { background-position: calc(200px + 100%) 0; }
-`;
+// Performance optimizations applied
 
 const theme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#FF6B35', // Basketball orange
+      main: '#FF6B35',
       light: '#FF9A73',
       dark: '#E55A2B',
     },
     secondary: {
-      main: '#FF1B8D', // Hot pink
+      main: '#FF1B8D',
       light: '#FF5FA8',
       dark: '#E0186E',
     },
     background: {
-      default: '#0F0620', // Deep purple-black
+      default: '#0F0620',
       paper: 'rgba(255, 255, 255, 0.05)',
     },
     text: {
@@ -64,10 +45,10 @@ const theme = createTheme({
       secondary: '#E0E0E0',
     },
     info: {
-      main: '#00E5FF', // Electric cyan
+      main: '#00E5FF',
     },
     warning: {
-      main: '#FFD700', // Gold
+      main: '#FFD700',
     },
   },
   typography: {
@@ -78,12 +59,10 @@ const theme = createTheme({
       backgroundClip: 'text',
       WebkitBackgroundClip: 'text',
       WebkitTextFillColor: 'transparent',
-      textShadow: '0 0 30px rgba(255, 107, 53, 0.5)',
     },
     h3: {
       fontWeight: 800,
       color: '#FFFFFF',
-      textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)',
     },
     h5: {
       fontWeight: 700,
@@ -102,8 +81,8 @@ const theme = createTheme({
           backdropFilter: 'blur(20px)',
           border: '1px solid rgba(255, 255, 255, 0.2)',
           borderRadius: '20px',
-          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)',
-          transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
+          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+          transition: 'all 0.3s ease',
         },
       },
     },
@@ -139,7 +118,7 @@ const theme = createTheme({
           boxShadow: '0 10px 30px rgba(255, 107, 53, 0.4)',
           transition: 'all 0.3s ease',
           '&:hover': {
-            transform: 'translateY(-3px)',
+            transform: 'translateY(-2px)',
             boxShadow: '0 15px 40px rgba(255, 107, 53, 0.6)',
           },
         },
@@ -147,6 +126,13 @@ const theme = createTheme({
     },
   },
 });
+
+// Loading component for Suspense
+const LoadingSpinner = () => (
+  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+    <CircularProgress size={60} />
+  </Box>
+);
 
 function App() {
   const [rosterResponse, setRosterResponse] = useState<RosterResponse | null>(null);
@@ -192,107 +178,28 @@ function App() {
       <Box 
         sx={{ 
           minHeight: '100vh',
-          background: {
-            default: 'linear-gradient(135deg, #0F0620 0%, #1A0B3D 25%, #2D1B69 50%, #FF1B8D 100%)',
-          },
+          background: 'linear-gradient(135deg, #0F0620 0%, #1A0B3D 25%, #2D1B69 50%, #FF1B8D 100%)',
           position: 'relative',
           overflow: 'hidden',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: {
-              default: `
-                radial-gradient(circle at 20% 20%, rgba(255, 107, 53, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 80% 80%, rgba(255, 27, 141, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.1) 0%, transparent 50%)
-              `,
-            },
-            animation: `${gradientShift} 8s ease-in-out infinite`,
-            zIndex: 0,
-          },
-          '&::after': {
-            content: '""',
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            background: {
-              default: `
-                repeating-linear-gradient(
-                  90deg,
-                  transparent,
-                  transparent 98px,
-                  rgba(255, 255, 255, 0.03) 100px
-                ),
-                repeating-linear-gradient(
-                  0deg,
-                  transparent,
-                  transparent 98px,
-                  rgba(255, 255, 255, 0.03) 100px
-                )
-              `,
-            },
-            zIndex: 0,
-          }
         }}
       >
-        {/* Floating Basketball Icons */}
+        {/* Simplified floating icons */}
         <Box
           sx={{
             position: 'absolute',
             top: '10%',
             right: '10%',
             zIndex: 1,
-            animation: `${float} 6s ease-in-out infinite`,
             opacity: 0.6,
           }}
         >
           <SportsBasketball sx={{ fontSize: '4rem', color: '#FF6B35' }} />
         </Box>
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: '20%',
-            left: '5%',
-            zIndex: 1,
-            animation: `${float} 8s ease-in-out infinite`,
-            animationDelay: '2s',
-            opacity: 0.4,
-          }}
-        >
-          <EmojiEvents sx={{ fontSize: '3rem', color: '#FFD700' }} />
-        </Box>
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '60%',
-            right: '20%',
-            zIndex: 1,
-            animation: `${float} 7s ease-in-out infinite`,
-            animationDelay: '4s',
-            opacity: 0.5,
-          }}
-        >
-          <Whatshot sx={{ fontSize: '2.5rem', color: '#FF1B8D' }} />
-        </Box>
 
-        {/* Stunning Header */}
-        <AppBar 
-          position="static" 
-          elevation={0}
-          sx={{
-            background: 'rgba(15, 6, 32, 0.95)',
-            backdropFilter: 'blur(30px)',
-            borderBottom: '2px solid rgba(255, 107, 53, 0.3)',
-            position: 'relative',
-            zIndex: 10,
-          }}
-        >
+        {/* Header */}
+        <AppBar position="static" elevation={0}>
           <Toolbar sx={{ py: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', animation: `${pulse} 3s ease-in-out infinite` }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Groups sx={{ mr: 2, fontSize: '2rem', color: '#FF6B35' }} />
               <Typography 
                 variant="h4" 
@@ -304,43 +211,19 @@ function App() {
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  textShadow: '0 0 30px rgba(255, 107, 53, 0.8)',
                   letterSpacing: '2px',
                 }}
               >
                 WNBA TEAM BUILDER
               </Typography>
             </Box>
-            <Box sx={{ animation: `${float} 4s ease-in-out infinite` }}>
-              <SportsBasketball sx={{ fontSize: '2.5rem', color: '#FF1B8D' }} />
-            </Box>
+            <SportsBasketball sx={{ fontSize: '2.5rem', color: '#FF1B8D' }} />
           </Toolbar>
         </AppBar>
 
         <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 5, py: 6 }}>
-          {/* Spectacular Hero Section */}
-          <Box
-            sx={{
-              textAlign: 'center',
-              mb: 8,
-              position: 'relative',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: '-50%',
-                left: '-50%',
-                width: '200%',
-                height: '200%',
-                background: {
-                  default: 'conic-gradient(from 0deg, #FF6B35, #FF1B8D, #00E5FF, #FFD700, #FF6B35)',
-                },
-                animation: `${gradientShift} 10s linear infinite`,
-                opacity: 0.1,
-                borderRadius: '50%',
-                zIndex: -1,
-              }
-            }}
-          >
+          {/* Hero Section */}
+          <Box sx={{ textAlign: 'center', mb: 8 }}>
             <Typography 
               variant="h1" 
               component="h1" 
@@ -352,20 +235,7 @@ function App() {
                 backgroundClip: 'text',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                textShadow: '0 0 60px rgba(255, 107, 53, 0.8)',
                 letterSpacing: '3px',
-                animation: `${shimmer} 3s ease-in-out infinite`,
-                position: 'relative',
-                '&::after': {
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'linear-gradient(135deg, transparent 40%, rgba(255, 255, 255, 0.1) 50%, transparent 60%)',
-                  animation: `${shimmer} 2s ease-in-out infinite`,
-                }
               }}
             >
               BUILD YOUR
@@ -381,9 +251,7 @@ function App() {
                 backgroundClip: 'text',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                textShadow: '0 0 80px rgba(255, 27, 141, 0.9)',
                 letterSpacing: '4px',
-                animation: `${pulse} 4s ease-in-out infinite`,
               }}
             >
               DREAM TEAM
@@ -399,7 +267,6 @@ function App() {
                 fontWeight: 500,
                 lineHeight: 1.4,
                 opacity: 0.9,
-                textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)',
               }}
             >
               🏀 AI-Powered WNBA Roster Building • Salary Cap Analysis • Team Chemistry Optimization
@@ -409,19 +276,7 @@ function App() {
           {/* Features Cards */}
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 4 }}>
             <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
-              <Card 
-                sx={{ 
-                  height: '100%', 
-                  textAlign: 'center', 
-                  p: 2,
-                  transition: 'all 0.3s ease-in-out',
-                  '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: '0 8px 25px rgba(144, 202, 249, 0.15)',
-                    borderColor: 'primary.main',
-                  }
-                }}
-              >
+              <Card sx={{ height: '100%', textAlign: 'center', p: 2 }}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom sx={{ color: 'primary.main' }}>
                     🏀 Player Analysis
@@ -433,19 +288,7 @@ function App() {
               </Card>
             </Box>
             <Box sx={{ flex: '1 1 250px', minWidth: '250px' }}>
-              <Card 
-                sx={{ 
-                  height: '100%', 
-                  textAlign: 'center', 
-                  p: 2,
-                  transition: 'all 0.3s ease-in-out',
-                  '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: '0 8px 25px rgba(76, 175, 80, 0.15)',
-                    borderColor: 'success.main',
-                  }
-                }}
-              >
+              <Card sx={{ height: '100%', textAlign: 'center', p: 2 }}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom sx={{ color: 'success.main' }}>
                     📋 Roster Construction
@@ -458,8 +301,8 @@ function App() {
             </Box>
           </Box>
 
-          {/* Spectacular Features Grid */}
-          <Box sx={{ mb: 8, position: 'relative' }}>
+          {/* Features Grid */}
+          <Box sx={{ mb: 8 }}>
             <Typography 
               variant="h3" 
               component="h2" 
@@ -471,7 +314,6 @@ function App() {
                 backgroundClip: 'text',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                textShadow: '0 0 30px rgba(255, 107, 53, 0.6)',
                 letterSpacing: '2px',
               }}
             >
@@ -482,225 +324,42 @@ function App() {
                 display: 'grid', 
                 gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }, 
                 gap: 4,
-                perspective: '1000px',
                 mb: 8,
               }}
             >
               {/* AI Analysis Card */}
-              <Card 
-                sx={{ 
-                  p: 4, 
-                  textAlign: 'center', 
-                  height: '300px',
-                  background: 'rgba(255, 107, 53, 0.1)',
-                  backdropFilter: 'blur(30px)',
-                  border: '2px solid rgba(255, 107, 53, 0.3)',
-                  borderRadius: '25px',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  transform: 'rotateY(0deg)',
-                  transition: 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)',
-                  '&:hover': {
-                    transform: 'translateY(-20px) rotateY(5deg) scale(1.05)',
-                    boxShadow: '0 30px 60px rgba(255, 107, 53, 0.4)',
-                    border: '2px solid rgba(255, 107, 53, 0.6)',
-                  },
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(255, 27, 141, 0.1) 100%)',
-                    borderRadius: '25px',
-                    opacity: 0,
-                    transition: 'opacity 0.3s ease',
-                  },
-                  '&:hover::before': {
-                    opacity: 1,
-                  }
-                }}
-              >
-                <Box sx={{ position: 'relative', zIndex: 2 }}>
-                  <AutoAwesome 
-                    sx={{ 
-                      fontSize: '4rem', 
-                      color: '#FF6B35', 
-                      mb: 2,
-                      animation: `${pulse} 2s ease-in-out infinite`,
-                      filter: 'drop-shadow(0 0 20px rgba(255, 107, 53, 0.6))',
-                    }} 
-                  />
-                  <Typography 
-                    variant="h5" 
-                    component="h3" 
-                    gutterBottom
-                    sx={{ 
-                      fontWeight: 700,
-                      color: '#FFFFFF',
-                      textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)',
-                    }}
-                  >
-                    🤖 AI GENIUS
-                  </Typography>
-                  <Typography 
-                    variant="body1" 
-                    sx={{ 
-                      color: '#E0E0E0',
-                      fontSize: '1.1rem',
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    Advanced AI algorithms analyze player combinations, predict team chemistry, and optimize lineup configurations for maximum impact
-                  </Typography>
-                </Box>
+              <Card sx={{ p: 4, textAlign: 'center', height: '300px' }}>
+                <AutoAwesome sx={{ fontSize: '4rem', color: '#FF6B35', mb: 2 }} />
+                <Typography variant="h5" component="h3" gutterBottom sx={{ fontWeight: 700 }}>
+                  🤖 AI GENIUS
+                </Typography>
+                <Typography variant="body1" sx={{ color: '#E0E0E0', fontSize: '1.1rem', lineHeight: 1.6 }}>
+                  Advanced AI algorithms analyze player combinations, predict team chemistry, and optimize lineup configurations
+                </Typography>
               </Card>
 
               {/* Salary Cap Card */}
-              <Card 
-                sx={{ 
-                  p: 4, 
-                  textAlign: 'center', 
-                  height: '300px',
-                  background: 'rgba(255, 27, 141, 0.1)',
-                  backdropFilter: 'blur(30px)',
-                  border: '2px solid rgba(255, 27, 141, 0.3)',
-                  borderRadius: '25px',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  transform: 'rotateY(0deg)',
-                  transition: 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)',
-                  '&:hover': {
-                    transform: 'translateY(-20px) rotateY(-5deg) scale(1.05)',
-                    boxShadow: '0 30px 60px rgba(255, 27, 141, 0.4)',
-                    border: '2px solid rgba(255, 27, 141, 0.6)',
-                  },
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'linear-gradient(135deg, rgba(255, 27, 141, 0.1) 0%, rgba(255, 215, 0, 0.1) 100%)',
-                    borderRadius: '25px',
-                    opacity: 0,
-                    transition: 'opacity 0.3s ease',
-                  },
-                  '&:hover::before': {
-                    opacity: 1,
-                  }
-                }}
-              >
-                <Box sx={{ position: 'relative', zIndex: 2 }}>
-                  <Typography 
-                    variant="h2" 
-                    component="div" 
-                    sx={{ 
-                      color: '#FFD700', 
-                      mb: 2,
-                      fontWeight: 900,
-                      textShadow: '0 0 30px rgba(255, 215, 0, 0.8)',
-                      animation: `${shimmer} 3s ease-in-out infinite`,
-                    }}
-                  >
-                    $
-                  </Typography>
-                  <Typography 
-                    variant="h5" 
-                    component="h3" 
-                    gutterBottom
-                    sx={{ 
-                      fontWeight: 700,
-                      color: '#FFFFFF',
-                      textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)',
-                    }}
-                  >
-                    💰 SALARY MASTER
-                  </Typography>
-                  <Typography 
-                    variant="body1" 
-                    sx={{ 
-                      color: '#E0E0E0',
-                      fontSize: '1.1rem',
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    Stay within WNBA CBA constraints while maximizing team value, competitive balance, and championship potential
-                  </Typography>
-                </Box>
+              <Card sx={{ p: 4, textAlign: 'center', height: '300px' }}>
+                <Typography variant="h2" component="div" sx={{ color: '#FFD700', mb: 2, fontWeight: 900 }}>
+                  $
+                </Typography>
+                <Typography variant="h5" component="h3" gutterBottom sx={{ fontWeight: 700 }}>
+                  💰 SALARY MASTER
+                </Typography>
+                <Typography variant="body1" sx={{ color: '#E0E0E0', fontSize: '1.1rem', lineHeight: 1.6 }}>
+                  Stay within WNBA CBA constraints while maximizing team value and championship potential
+                </Typography>
               </Card>
 
               {/* Team Chemistry Card */}
-              <Card 
-                sx={{ 
-                  p: 4, 
-                  textAlign: 'center', 
-                  height: '300px',
-                  background: 'rgba(0, 229, 255, 0.1)',
-                  backdropFilter: 'blur(30px)',
-                  border: '2px solid rgba(0, 229, 255, 0.3)',
-                  borderRadius: '25px',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  transform: 'rotateY(0deg)',
-                  transition: 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)',
-                  '&:hover': {
-                    transform: 'translateY(-20px) rotateY(5deg) scale(1.05)',
-                    boxShadow: '0 30px 60px rgba(0, 229, 255, 0.4)',
-                    border: '2px solid rgba(0, 229, 255, 0.6)',
-                  },
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%)',
-                    borderRadius: '25px',
-                    opacity: 0,
-                    transition: 'opacity 0.3s ease',
-                  },
-                  '&:hover::before': {
-                    opacity: 1,
-                  }
-                }}
-              >
-                <Box sx={{ position: 'relative', zIndex: 2 }}>
-                  <Groups 
-                    sx={{ 
-                      fontSize: '4rem', 
-                      color: '#00E5FF', 
-                      mb: 2,
-                      animation: `${float} 3s ease-in-out infinite`,
-                      filter: 'drop-shadow(0 0 20px rgba(0, 229, 255, 0.6))',
-                    }} 
-                  />
-                  <Typography 
-                    variant="h5" 
-                    component="h3" 
-                    gutterBottom
-                    sx={{ 
-                      fontWeight: 700,
-                      color: '#FFFFFF',
-                      textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)',
-                    }}
-                  >
-                    🔥 TEAM SYNERGY
-                  </Typography>
-                  <Typography 
-                    variant="body1" 
-                    sx={{ 
-                      color: '#E0E0E0',
-                      fontSize: '1.1rem',
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    Evaluate player compatibility, leadership dynamics, and on-court chemistry for championship-winning combinations
-                  </Typography>
-                </Box>
+              <Card sx={{ p: 4, textAlign: 'center', height: '300px' }}>
+                <Groups sx={{ fontSize: '4rem', color: '#00E5FF', mb: 2 }} />
+                <Typography variant="h5" component="h3" gutterBottom sx={{ fontWeight: 700 }}>
+                  🔥 TEAM SYNERGY
+                </Typography>
+                <Typography variant="body1" sx={{ color: '#E0E0E0', fontSize: '1.1rem', lineHeight: 1.6 }}>
+                  Evaluate player compatibility, leadership dynamics, and on-court chemistry for championship-winning combinations
+                </Typography>
               </Card>
             </Box>
           </Box>
@@ -712,7 +371,9 @@ function App() {
                 <Typography variant="h5" gutterBottom>
                   Build Your Roster
                 </Typography>
-                <RosterBuilderForm onSubmit={handleBuildRoster} loading={loading} />
+                <Suspense fallback={<LoadingSpinner />}>
+                  <RosterBuilderForm onSubmit={handleBuildRoster} loading={loading} />
+                </Suspense>
               </Paper>
             </Box>
 
@@ -738,7 +399,9 @@ function App() {
                       variant="outlined"
                     />
                   </Box>
-                  <TripResults response={rosterResponse} onNewTrip={handleNewRoster} />
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <TripResults response={rosterResponse} onNewTrip={handleNewRoster} />
+                  </Suspense>
                 </Paper>
               )}
 
